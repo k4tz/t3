@@ -8,6 +8,7 @@ export default async function t2oeRT(io) {
         console.log("A user connected. Guest right now. SocketID: " + socket.id);
         //set up connection manager
         connectionManager(socket);        
+        socket.emit('join_matchmaking');
     });
 
     setInterval(() => {
