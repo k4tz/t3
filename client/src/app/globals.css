@@ -1,0 +1,232 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: 'Times New Roman', Times, serif;
+  /* color: white; */
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+} */
+
+.square{
+  font-weight: bold;
+  box-sizing: content-box !important;
+  font-size: xx-large;
+  /* margin: 10px; */
+}
+
+.theme-banner-Imperial{
+  background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+}
+.theme-banner-Chomie{
+  background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgb(121, 9, 65) 35%, rgb(255, 191, 0) 100%);
+}
+.theme-banner-Retro{
+  background: linear-gradient(90deg, rgb(46, 24, 1) 0%, rgb(121, 78, 9) 35%, rgb(255, 123, 0) 100%);
+}
+
+.Imperial{
+  border: 10px solid rgb(9, 9, 121);
+  background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+}
+.Imperial .board{
+  border: 10px solid rgb(9, 9, 121);
+  background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+}
+.Imperial .square{
+  border: 1px solid rgb(179, 237, 255);
+  background-color: rgb(9, 25, 84);
+}
+.Imperial .square:hover{
+  background-color: rgb(199, 251, 244);
+  color: rgb(9, 9, 121);
+}
+.Imperial .reset-btn{
+  border: 1px solid rgb(41, 249, 253);
+  background-color: rgb(89, 252, 255);
+  font-weight: bold;
+  color: rgb(23, 25, 135);
+}
+.Imperial .winner-placement{
+  box-shadow: 
+    0 0 5px #ff005d,    /* Inner glow */
+    0 0 10px #ff00b3,   /* Outer glow */
+    0 0 20px #ee7c89,   /* Larger glow */
+    0 0 40px #e873bf; 
+}
+
+
+
+
+.Chomie{
+  border: 10px solid rgb(121, 9, 65);
+  background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgb(121, 9, 65) 35%, rgb(255, 191, 0) 100%);
+}
+.Chomie .board{
+  border: 10px solid rgb(121, 9, 65);
+  background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgb(121, 9, 65) 35%, rgb(255, 191, 0) 100%);
+}
+.Chomie .square{
+  border: 1px solid rgb(121, 240, 24);
+  background-color: rgb(255, 117, 71);
+}
+.Chomie .square:hover{
+  background-color: rgb(237, 183, 165);
+  color: rgb(255, 117, 71);
+}
+.Chomie .reset-btn{
+  border: 1px solid rgb(255, 117, 71);
+  background-color: rgb(121, 9, 65);
+  font-weight: bold;
+  color: rgb(255, 117, 71);
+}
+.Chomie .winner-placement{
+  box-shadow: 
+    0 0 5px #00ffff,    /* Inner glow */
+    0 0 10px #00ffff,   /* Outer glow */
+    0 0 20px #00ffff,   /* Larger glow */
+    0 0 40px #00ffcc; 
+}
+
+
+
+.Retro{
+  border: 10px solid rgb(89, 46, 5);
+  background: linear-gradient(36deg, rgb(220, 116, 4) 0%, rgb(121, 78, 9) 35%, rgb(255, 123, 0) 100%);
+}
+
+.Retro .board{
+  border: 10px solid rgb(89, 46, 5);
+  background: linear-gradient(36deg, rgb(220, 116, 4) 0%, rgb(121, 78, 9) 35%, rgb(255, 123, 0) 100%);
+}
+
+.Retro .square{
+  border: 1px solid rgb(246, 172, 0);
+  background-color: rgb(241, 197, 144);
+}
+
+.Retro .square:hover{
+  background-color: rgb(244, 220, 191);
+  color: rgb(135, 72, 23);
+}
+
+.Retro .reset-btn{
+  border: 1px solid rgb(246, 172, 0);
+  background-color: rgb(241, 197, 144);
+  font-weight: bold;
+  color: rgb(135, 72, 23);
+}
+.Retro .winner-placement{
+  box-shadow: 
+    0 0 5px #00ffff,    /* Inner glow */
+    0 0 10px #00ffff,   /* Outer glow */
+    0 0 20px #00ffff,   /* Larger glow */
+    0 0 40px #00ffcc; 
+}
+
+progress {
+  border-radius: 7px; 
+  width: 100%;
+  height: 5px;
+  box-shadow: 1px 1px 4px rgba( 0, 0, 0, 0.2 );
+}
+progress::-webkit-progress-bar {
+  background-color: yellow;
+  border-radius: 7px;
+}
+progress::-webkit-progress-value {
+  background-color: blue;
+  border-radius: 7px;
+  box-shadow: 1px 1px 5px 3px rgba( 255, 0, 0, 0.8 );
+  transition: width 0.3s;
+}
+
+.background_cross_pattern{
+  background:
+  radial-gradient(circle, transparent 20%, rgb(108, 23, 45) 20%,
+  rgb(108, 23, 45) 80%, transparent 80%, transparent),
+  radial-gradient(circle, transparent 20%, rgb(108, 23, 45) 20%,
+  rgb(108, 23, 45) 80%, transparent 80%, transparent) 50px 50px,
+  linear-gradient(#a55f0f 8px, transparent 8px) 0 -4px,
+  linear-gradient(90deg, #a55f0f 8px, transparent 8px) -4px 0;
+  background-color: rgb(108, 23, 45);
+  background-size: 100px 100px, 100px 100px, 50px 50px, 50px 50px;
+}
+
+
+
+
+@layer base {
+    :root {
+      --background: 0 0% 100%;
+      --foreground: 224 71.4% 4.1%;
+      --card: 0 0% 100%;
+      --card-foreground: 224 71.4% 4.1%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 224 71.4% 4.1%;
+      --primary: 262.1 83.3% 57.8%;
+      --primary-foreground: 210 20% 98%;
+      --secondary: 220 14.3% 95.9%;
+      --secondary-foreground: 220.9 39.3% 11%;
+      --muted: 220 14.3% 95.9%;
+      --muted-foreground: 220 8.9% 46.1%;
+      --accent: 220 14.3% 95.9%;
+      --accent-foreground: 220.9 39.3% 11%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 210 20% 98%;
+      --border: 220 13% 91%;
+      --input: 220 13% 91%;
+      --ring: 262.1 83.3% 57.8%;
+      --radius: 0.5rem;
+      --chart-1: 12 76% 61%;
+      --chart-2: 173 58% 39%;
+      --chart-3: 197 37% 24%;
+      --chart-4: 43 74% 66%;
+      --chart-5: 27 87% 67%;
+    }
+  
+    .dark {
+      --background: 224 71.4% 4.1%;
+      --foreground: 210 20% 98%;
+      --card: 224 71.4% 4.1%;
+      --card-foreground: 210 20% 98%;
+      --popover: 224 71.4% 4.1%;
+      --popover-foreground: 210 20% 98%;
+      --primary: 263.4 70% 50.4%;
+      --primary-foreground: 210 20% 98%;
+      --secondary: 215 27.9% 16.9%;
+      --secondary-foreground: 210 20% 98%;
+      --muted: 215 27.9% 16.9%;
+      --muted-foreground: 217.9 10.6% 64.9%;
+      --accent: 215 27.9% 16.9%;
+      --accent-foreground: 210 20% 98%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 210 20% 98%;
+      --border: 215 27.9% 16.9%;
+      --input: 215 27.9% 16.9%;
+      --ring: 263.4 70% 50.4%;
+      --chart-1: 220 70% 50%;
+      --chart-2: 160 60% 45%;
+      --chart-3: 30 80% 55%;
+      --chart-4: 280 65% 60%;
+      --chart-5: 340 75% 55%;
+    }
+  }
+  
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
