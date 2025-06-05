@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "serve": "concurrently \"node --watch --trace-warnings index.js\" \"cd ./client && npm run dev\"",
-    "migrate": "cd ./db && node migrate.js",
-    "migrate:rollback": "cd ./db && node migrate.js --down",
+    "server": "node --watch --trace-warnings index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
