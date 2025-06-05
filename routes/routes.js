@@ -1,6 +1,6 @@
 import express from "express";
-import authenticateToken from "./middleware/authenticateToken.js";
-import authService from "./tictactoe/http/authService.js";
+import authenticateToken from "../middleware/authenticateToken.js";
+import authService from "../tictactoe/http/authService.js";
 
 const router = express.Router();
 

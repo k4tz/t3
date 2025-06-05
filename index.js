@@ -1,40 +1,32 @@
+//core imports
 import bootstrap from './bootstrap.js'
-
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import setupRealtimeEvents from "./tictactoe/core/main.js"
 
-import cors from "cors";
-import cookieParser from "cookie-parser"; 
+//import and setup middleware
+import setupMiddleware from "./middleware/main.js";
 
-import t2oeRT from "./tictactoe/realtime/main.js"
+//routes imports
+import router from "./routes/routes.js";
 
-import router from "./routes.js";
+//import config
+import corsConfig from "./config/cors.js";
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: "http://localhost:3000" } });
+const io = new Server(httpServer, { cors: { origin: corsConfig.allowed_origins } });
 
-// Enable CORS
-app.use(cors({
-  origin: "http://localhost:3000", 
-  credentials: true, 
-  methods: ["Get", "Post", "Put", "Delete"], 
-  allowedHeaders: ["Content-Type", "Authorization", "Origin"] 
-}));
-
-app.use(cookieParser());
-
-app.use(express.json());
 app.use("/", router);
+setupMiddleware(app);
 
 (async () => {
   await bootstrap();
 
-  t2oeRT(io);
+  setupRealtimeEvents(io);
   
   httpServer.listen(process.env.APP_PORT || 3000, () => {
     console.log(`Listening on port ${process.env.APP_PORT || 3000}`);
   });
-
 })()

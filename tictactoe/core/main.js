@@ -2,7 +2,7 @@ import matchmakingRT from "./matchmaking.js";
 import connectionManager from "./ConnectionManager.js";
 import { connectionStore } from "./ConnectionStore.js";
 
-export default async function t2oeRT(io) {
+export default async function setupRealtimeEvents(io) {
     io.on("connection", (socket) => {
         socket.userID = undefined;
         console.log("A user connected. Guest right now. SocketID: " + socket.id);
