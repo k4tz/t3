@@ -4,7 +4,7 @@ const matchmakingPool = new Set();
 // Store for active game rooms
 const gameRooms = new Map();
 
-export default function matchmakingRT(socket) {
+export default function setupMatchmaking(socket) {
     // Join matchmaking pool
     socket.on("join_matchmaking", () => {
         if (socket.userID) {
