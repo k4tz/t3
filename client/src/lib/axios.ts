@@ -24,11 +24,6 @@ api.interceptors.request.use((config) => {
     // Ensure other headers are explicitly retained if needed
     config.headers['Accept'] = config.headers['Accept'] || 'application/json';
     config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json';
-    console.log("Outgoing Axios Request", {
-        url: config.url,
-        method: config.method,
-        headers: config.headers
-      });
   
     return config;
 });
