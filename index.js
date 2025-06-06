@@ -16,10 +16,10 @@ import corsConfig from "./config/cors.js";
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: corsConfig.allowed_origins } });
+const io = new Server(httpServer, { cors: { origin: corsConfig.origin } });
 
-app.use("/", router);
 setupMiddleware(app);
+app.use("/", router);
 
 (async () => {
   await bootstrap();

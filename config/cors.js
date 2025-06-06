@@ -3,13 +3,13 @@
  */
 
 const corsConfig = {
-    allowed_origins: process.env.ALLOWED_ORIGINS || "http://localhost:3000",
-    allowed_methods: process.env.ALLOWED_METHODS || ["GET", "POST", "PUT", "DELETE"],
-    allowed_headers: process.env.ALLOWED_HEADERS || ["Content-Type", "Authorization", "Origin"],
-    credentials: process.env.CREDENTIALS || true,
-    max_age: process.env.MAX_AGE || 1800,
-    preflight_continue: process.env.PREFLIGHT_CONTINUE || false,
-    options_success_status: process.env.OPTIONS_SUCCESS_STATUS || 204
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || ["http://localhost:3000"],
+    methods: process.env.ALLOWED_METHODS?.split(',') || ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: process.env.ALLOWED_HEADERS?.split(',') || ["Content-Type", "Authorization", "Origin", "X-T3-CSRF"],
+    credentials: process.env.CREDENTIALS === "true" || true, // ensure it's a boolean
+    maxAge: parseInt(process.env.MAX_AGE, 10) || 1800,
+    preflightContinue: process.env.PREFLIGHT_CONTINUE === "true" || false,
+    optionsSuccessStatus: parseInt(process.env.OPTIONS_SUCCESS_STATUS, 10) || 204
 };
 
 export default corsConfig;
