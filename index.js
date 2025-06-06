@@ -3,13 +3,13 @@ import bootstrap from './bootstrap.js'
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import setupRealtimeEvents from "./tictactoe/core/main.js"
+import setupRealtimeEvents from "./tictactoe/core/index.js"
 
 //import and setup middleware
-import setupMiddleware from "./middleware/main.js";
+import setupMiddleware from "./middleware/index.js";
 
 //routes imports
-import router from "./routes/routes.js";
+import router from "./routes/index.js";
 
 //import config
 import corsConfig from "./config/cors.js";
