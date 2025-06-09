@@ -1,8 +1,5 @@
 /**
- * @description: Define config settings by reading them from env and if env isn't set, we use a default value.
- * Defining the default values here makes it easier to change the default values in one place.
- * 
- * This particular file is used for auth related to config variables
+ * @description: Define auth config variables
  */
 
 const authConfig = {

@@ -1,8 +1,5 @@
-// middleware/authenticateToken.js
-
 const authenticateToken = async (req, res, next) => {
     const token = req.cookies?.accessToken;
-    // console.log(req);
     if (!token) {
         return res.status(401).json({ error: 'Unauthorized.' });
     }

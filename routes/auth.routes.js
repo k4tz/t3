@@ -1,10 +1,10 @@
 import express from "express";
-import authenticateToken from "./middleware/authenticateToken.js";
-import authService from "./tictactoe/http/authService.js";
+import authenticateToken from "../middleware/authenticateToken.js";
+import authService from "../tictactoe/http/authService.js";
 
-const router = express.Router();
+const authRouter = express.Router();
 
-router.post("/register", async (req, res) => {
+authRouter.post("/register", async (req, res) => {
     
     if(!req.body?.username || !req.body?.password) {
         res.status(400).json({
@@ -46,7 +46,7 @@ router.post("/register", async (req, res) => {
     }
 });
 
-router.post("/login", async (req, res) => {
+authRouter.post("/login", async (req, res) => {
 
     if(!req.body?.username || !req.body?.password) {
         res.status(400).json({
@@ -81,13 +81,13 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.post('/logout', (req, res) => {
+authRouter.post('/logout', (req, res) => {
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
     res.status(200).json({});
 });
 
-router.post("/refresh", async (req, res) => {
+authRouter.post("/refresh", async (req, res) => {
 
     const refreshToken = req.cookies?.refreshToken;
     
@@ -122,12 +122,8 @@ router.post("/refresh", async (req, res) => {
     }
 });
 
-router.get("/me", authenticateToken, (req, res) => {
+authRouter.get("/me", authenticateToken, (req, res) => {
     res.status(200).json(req.user);
 });
 
-router.get("/test", (req, res) => {
-    res.status(200).json({"test": "test"});
-});
-
-export default router
+export default authRouter
