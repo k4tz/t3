@@ -1,49 +1,49 @@
 import { GameArena } from './GameArena.js';
 
 class GameArenaPool {
-  constructor() {
-    if (!GameArenaPool.instance) {
-      this.arena = new Map();
-      GameArenaPool.instance = this;
+    constructor() {
+        if (!GameArenaPool.instance) {
+            this.arena = new Map();
+            GameArenaPool.instance = this;
+        }
+        return GameArenaPool.instance;
     }
-    return GameArenaPool.instance;
-  }
 
-  createRoom(roomData) {
-    const room = new GameArena(roomData);
-    this.arena.set(room.roomId, room);
-    return room;
-  }
-
-  removeRoom(roomId) {
-    this.arena.delete(roomId);
-  }
-
-  getRoom(roomId) {
-    return this.arena.get(roomId);
-  }
-
-  addSpectator(roomId, spectator) {
-    const room = this.arena.get(roomId);
-    if (room) {
-      room.spectators.push(spectator);
+    createArena(arenaData) {
+        const arena = new GameArena(arenaData);
+        this.arena.set(arena.arenaId, arena);
+        return arena;
     }
-  }
 
-  addPlayer(roomId, player) {
-    const room = this.arena.get(roomId);
-    if (room) {
-      room.players.push(player);
+    removeArena(arenaId) {
+        this.arena.delete(arenaId);
     }
-  }
 
-  getAllarena() {
-    return Array.from(this.arena.values());
-  }
+    getArena(arenaId) {
+        return this.arena.get(arenaId);
+    }
 
-  clear() {
-    this.arena.clear();
-  }
+    addSpectator(arenaId, spectator) {
+        const arena = this.arena.get(arenaId);
+        if (arena) {
+            arena.spectators.push(spectator);
+        }
+    }
+
+    addPlayer(arenaId, player) {
+        const arena = this.arena.get(arenaId);
+        if (arena) {
+            arena.players.push(player);
+        }
+    }
+
+    getAllarena() {
+        return Array.from(this.arena.values());
+    }
+
+    clear() {
+        this.arena.clear();
+    }
 }
 
 const instance = new GameArenaPool();
