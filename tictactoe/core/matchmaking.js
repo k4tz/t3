@@ -1,17 +1,19 @@
-// Store for players in matchmaking pool
-const matchmakingPool = new Set();
 
-// Store for active game rooms
-const gameRooms = new Map();
+
+import MatchmakingPool from '../stores/matchmaking/MatchmakingPool.js';
+import { MatchmakingPoolEntry } from '../stores/matchmaking/MatchmakingPoolEntry.js';
+import GameArenaPool from '../stores/gameArena/GameArenaPool.js';
+import { GameArena } from '../stores/gameArena/GameArena.js';
 
 export default function setupMatchmaking(socket) {
     // Join matchmaking pool
-    socket.on("join_matchmaking", () => {
+    socket.on("join_matchmaking", (playerData = {}) => {
         if (socket.userID) {
-            matchmakingPool.add(socket.id);
+            // Prepare extensible entry data
+            const entryData = { playerId: socket.id, ...playerData };
+            MatchmakingPool.addPlayer(entryData);
             socket.emit("matchmaking_status", "searching");
             console.log(`Player ${socket.userID} joined matchmaking pool`);
-            
             // Try to find a match
             findMatch(socket);
         } else {
@@ -21,15 +23,17 @@ export default function setupMatchmaking(socket) {
 
     // Leave matchmaking pool
     socket.on("leave_matchmaking", () => {
-        matchmakingPool.delete(socket.id);
+        MatchmakingPool.removePlayer(socket.id);
         socket.emit("matchmaking_status", "cancelled");
         console.log(`Player ${socket.userID} left matchmaking pool`);
     });
 
     // Join as spectator
     socket.on("join_as_spectator", (roomId) => {
-        if (gameRooms.has(roomId)) {
+        const room = GameArenaPool.getRoom(roomId);
+        if (room) {
             socket.join(roomId);
+            GameArenaPool.addSpectator(roomId, socket.id);
             socket.emit("spectator_joined", roomId);
             console.log(`Spectator joined room ${roomId}`);
         } else {
@@ -39,43 +43,51 @@ export default function setupMatchmaking(socket) {
 
     // Handle disconnection
     socket.on("disconnect", () => {
-        matchmakingPool.delete(socket.id);
-        // Remove from game room if in one
-        for (const [roomId, players] of gameRooms.entries()) {
-            if (players.includes(socket.id)) {
-                gameRooms.delete(roomId);
-                socket.to(roomId).emit("player_disconnected");
+        MatchmakingPool.removePlayer(socket.id);
+        // Remove player from any game room
+        for (const room of GameArenaPool.getAllarena()) {
+            if (room.players.includes(socket.id)) {
+                GameArenaPool.removeRoom(room.roomId);
+                socket.to(room.roomId).emit("player_disconnected");
                 break;
             }
         }
     });
 }
 
+
 function findMatch(socket) {
-    if (matchmakingPool.size >= 2) {
-        // Get two players from the pool
-        const players = Array.from(matchmakingPool).slice(0, 2);
-        
+    const pool = MatchmakingPool.getAll();
+    if (pool.length >= 2) {
+        // For extensibility, match by any logic (e.g. closest win/loss ratio)
+        // For now, just take the first two
+        const [player1, player2] = pool.slice(0, 2);
+
         // Create a unique room ID
         const roomId = `game_${Date.now()}`;
-        
+
         // Remove players from matchmaking pool
-        players.forEach(playerId => matchmakingPool.delete(playerId));
-        
-        // Store room information
-        gameRooms.set(roomId, players);
-        
+        MatchmakingPool.removePlayer(player1.playerId);
+        MatchmakingPool.removePlayer(player2.playerId);
+
+        // Create a new game arena (room) with extensible data
+        GameArenaPool.createRoom({
+            roomId,
+            players: [player1.playerId, player2.playerId],
+            spectators: []
+        });
+
         // Get the other player's socket
-        const otherPlayerSocket = socket.server.sockets.sockets.get(players[1]);
-        
+        const otherPlayerSocket = socket.server.sockets.sockets.get(player2.playerId);
+
         // Join both players to the room
         socket.join(roomId);
         otherPlayerSocket.join(roomId);
-        
+
         // Notify both players
         socket.emit("match_found", { roomId, opponent: otherPlayerSocket.userID });
         otherPlayerSocket.emit("match_found", { roomId, opponent: socket.userID });
-        
+
         console.log(`Match created in room ${roomId} between ${socket.userID} and ${otherPlayerSocket.userID}`);
     }
 }
