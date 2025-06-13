@@ -1,18 +1,16 @@
 
 
-import MatchmakingPool from '../stores/matchmaking/MatchmakingPool.js';
-import { MatchmakingPoolEntry } from '../stores/matchmaking/MatchmakingPoolEntry.js';
-import GameArenaPool from '../stores/gameArena/GameArenaPool.js';
-import { GameArena } from '../stores/gameArena/GameArena.js';
-
-import { GameState } from '../stores/gameArena/GameState.js';
+import CombatQueue from '../stores/matchRegistrar/CombatQueue.js';
+import { Challenger } from '../stores/matchRegistrar/Challenger.js';
+import Colosseum from '../stores/colosseum/Colosseum.js';
+import { Arena } from '../stores/colosseum/Arena.js';
 
 export default function setupMatchmaking(socket) {
     // Join matchmaking pool
     socket.on("join_matchmaking", (playerData = {}) => {
         if (socket.userID) {
-            const entry = new MatchmakingPoolEntry({ playerId: socket.userID, ...playerData });
-            MatchmakingPool.addPlayer(entry);
+            const entry = new Challenger({ playerId: socket.userID, ...playerData });
+            CombatQueue.addPlayer(entry);
             socket.emit("matchmaking_status", "searching");
             console.log(`Player ${socket.userID} joined matchmaking pool`);
             // Try to find a match
@@ -24,14 +22,14 @@ export default function setupMatchmaking(socket) {
 
     // Leave matchmaking pool
     socket.on("leave_matchmaking", () => {
-        MatchmakingPool.removePlayer(socket.userID);
+        CombatQueue.removePlayer(socket.userID);
         socket.emit("matchmaking_status", "cancelled");
         console.log(`Player ${socket.userID} left matchmaking pool`);
     });
 
     // Player makes a move
     socket.on("make_move", ({ arenaId, row, col }) => {
-        const arena = GameArenaPool.getArena(arenaId);
+        const arena = Colosseum.getArena(arenaId);
         if (!arena) {
             socket.emit("error", "Arena not found");
             return;
@@ -43,22 +41,22 @@ export default function setupMatchmaking(socket) {
             return;
         }
         const playerMark = playerIdx === 0 ? 'X' : 'O';
-        const gameState = arena.gameState;
-        if (!gameState.isValidMove(playerMark, row, col)) {
+        const Ledger = arena.Ledger;
+        if (!Ledger.isValidMove(playerMark, row, col)) {
             socket.emit("invalid_move", { message: "Invalid move" });
             return;
         }
-        gameState.applyMove(playerMark, row, col);
+        Ledger.applyMove(playerMark, row, col);
         // Broadcast updated state to all in arena
-        socket.server.to(arenaId).emit("game_state_update", { gameState });
+        socket.server.to(arenaId).emit("game_state_update", { Ledger });
     });
 
     // Join as spectator
     socket.on("join_as_spectator", (arenaId) => {
-        const arena = GameArenaPool.getArena(arenaId);
+        const arena = Colosseum.getArena(arenaId);
         if (arena) {
             socket.join(arenaId);
-            GameArenaPool.addSpectator(arenaId, socket.id);
+            Colosseum.addSpectator(arenaId, socket.id);
             socket.emit("spectator_joined", arenaId);
             console.log(`Spectator joined arena ${arenaId}`);
         } else {
@@ -68,11 +66,11 @@ export default function setupMatchmaking(socket) {
 
     // Handle disconnection
     socket.on("disconnect", () => {
-        MatchmakingPool.removePlayer(socket.id);
+        CombatQueue.removePlayer(socket.id);
         // Remove player from any game arena
-        for (const arena of GameArenaPool.getAllarena()) {
+        for (const arena of Colosseum.getAllarena()) {
             if (arena.players.includes(socket.userID)) {
-                GameArenaPool.removeArena(arena.arenaId);
+                Colosseum.removeArena(arena.arenaId);
                 socket.to(arena.arenaId).emit("player_disconnected");
                 break;
             }
@@ -82,7 +80,7 @@ export default function setupMatchmaking(socket) {
 
 
 function getPlayerStats(playerId) {
-    const entry = MatchmakingPool.getAll().find(e => e.playerId === playerId);
+    const entry = CombatQueue.getAll().find(e => e.playerId === playerId);
     if (entry) {
         return { wins: entry.wins, losses: entry.losses };
     }
@@ -90,7 +88,7 @@ function getPlayerStats(playerId) {
 }
 
 function findMatch(socket) {
-    const pool = MatchmakingPool.getAll();
+    const pool = CombatQueue.getAll();
     if (pool.length >= 2) {
         let bestPair = null;
         let minDiff = Infinity;
@@ -114,16 +112,16 @@ function findMatch(socket) {
         const arenaId = `game_${Date.now()}`;
 
         // Remove players from matchmaking pool
-        MatchmakingPool.removePlayer(player1.playerId);
-        MatchmakingPool.removePlayer(player2.playerId);
+        CombatQueue.removePlayer(player1.playerId);
+        CombatQueue.removePlayer(player2.playerId);
 
         // Create a new game arena (arena) with extensible data
-        const arena = new GameArena({
+        const arena = new Arena({
             arenaId,
             players: [player1.playerId, player2.playerId], // These are userIDs now
             spectators: []
         });
-        GameArenaPool.createArena(arena);
+        Colosseum.createArena(arena);
 
         // Find sockets by userID
         const sockets = Array.from(socket.server.sockets.sockets.values());
