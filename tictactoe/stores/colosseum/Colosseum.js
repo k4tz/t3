@@ -1,16 +1,16 @@
-import { GameArena } from './GameArena.js';
+import { Arena } from './Arena.js';
 
-class GameArenaPool {
+class Colosseum {
     constructor() {
-        if (!GameArenaPool.instance) {
+        if (!Colosseum.instance) {
             this.arena = new Map();
-            GameArenaPool.instance = this;
+            Colosseum.instance = this;
         }
-        return GameArenaPool.instance;
+        return Colosseum.instance;
     }
 
     createArena(arenaData) {
-        const arena = new GameArena(arenaData);
+        const arena = new Arena(arenaData);
         this.arena.set(arena.arenaId, arena);
         return arena;
     }
@@ -46,6 +46,6 @@ class GameArenaPool {
     }
 }
 
-const instance = new GameArenaPool();
+const instance = new Colosseum();
 Object.freeze(instance);
 export default instance;

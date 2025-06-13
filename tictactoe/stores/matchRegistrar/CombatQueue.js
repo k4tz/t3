@@ -1,16 +1,16 @@
-import { MatchmakingPoolEntry } from './MatchmakingPoolEntry.js';
+import { Challenger } from './Challenger.js';
 
-class MatchmakingPool {
+class CombatQueue {
     constructor() {
-        if (!MatchmakingPool.instance) {
+        if (!CombatQueue.instance) {
             this.pool = [];
-            MatchmakingPool.instance = this;
+            CombatQueue.instance = this;
         }
-        return MatchmakingPool.instance;
+        return CombatQueue.instance;
     }
 
     addPlayer(entryData) {
-        const entry = new MatchmakingPoolEntry(entryData);
+        const entry = new Challenger(entryData);
         this.pool.push(entry);
         return entry;
     }
@@ -33,6 +33,6 @@ class MatchmakingPool {
     }
 }
 
-const instance = new MatchmakingPool();
+const instance = new CombatQueue();
 Object.freeze(instance);
 export default instance;

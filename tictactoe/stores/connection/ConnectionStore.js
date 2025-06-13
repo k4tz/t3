@@ -8,6 +8,7 @@ class ConnectionStore{
     static getInstance(){
         if(!ConnectionStore.instance){
             ConnectionStore.instance = new ConnectionStore();
+            Object.freeze(ConnectionStore.instance);
         }
 
         return ConnectionStore.instance;
