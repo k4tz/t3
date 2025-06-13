@@ -1,4 +1,4 @@
-export class GameState {
+export class Ledger {
     constructor() {
         this.boardState = [
             ['', '', ''],
