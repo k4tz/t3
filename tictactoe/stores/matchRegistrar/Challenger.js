@@ -1,7 +1,18 @@
 export class Challenger {
-    constructor({ playerId, wins = 0, losses = 0 } = {}) {
+    constructor({ playerId, stars = 0, ...playerData } = {}) {
         this.playerId = playerId;
-        this.wins = wins;
-        this.losses = losses;
+        this.stars = stars;
+        this.queueStartTime = Date.now();
+        this.queueTime = 0;
+        this.matchmakingPreferences = playerData.matchmakingPreferences || {};
+    }
+
+    updateQueueTime() {
+        this.queueTime = Date.now() - this.queueStartTime;
+        return this.queueTime;
+    }
+
+    getQueueTimeInSeconds() {
+        return Math.floor(this.queueTime / 1000);
     }
 }

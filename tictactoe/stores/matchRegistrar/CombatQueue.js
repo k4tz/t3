@@ -1,9 +1,10 @@
 import { Challenger } from './Challenger.js';
 
 class CombatQueue {
+    static instance;
+    #pool = [];
     constructor() {
         if (!CombatQueue.instance) {
-            this.pool = [];
             CombatQueue.instance = this;
         }
         return CombatQueue.instance;
@@ -34,5 +35,4 @@ class CombatQueue {
 }
 
 const instance = new CombatQueue();
-Object.freeze(instance);
 export default instance;
