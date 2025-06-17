@@ -1,4 +1,4 @@
-import setupMatchmaking from "./matchmaking.js";
+import setupMatchmaking from "./matchmaking/index.js";
 import connectionManager from "./ConnectionManager.js";
 
 export default async function setupRealtimeEvents(io) {
