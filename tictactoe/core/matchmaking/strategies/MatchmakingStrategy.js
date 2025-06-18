@@ -1,4 +1,4 @@
-export class MatchmakingStrategy {
+export default class MatchmakingStrategy {
     getPlayerScore(player) {
         throw new Error('getPlayerScore must be implemented');
     }

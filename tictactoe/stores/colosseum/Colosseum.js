@@ -1,6 +1,7 @@
-import { Arena } from './Arena.js';
+import Arena from './Arena.js';
 
 class Colosseum {
+    #arena = null;
     constructor() {
         if (!Colosseum.instance) {
             this.arena = new Map();
@@ -47,5 +48,4 @@ class Colosseum {
 }
 
 const instance = new Colosseum();
-Object.freeze(instance);
 export default instance;

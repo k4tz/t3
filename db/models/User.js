@@ -12,6 +12,10 @@ const UserSchema = new Schema({
     totalStars: { type: Number, default: 0 },
 });
 
-UserSchema.index({ username: 1 }, { unique: true });
+/**
+ * below line is commented out because having unique on username definition when creating 
+ * schema above creates an index already
+ */
+// UserSchema.index({ username: 1 }, { unique: true });
 
 export default mongoose.model("User", UserSchema);

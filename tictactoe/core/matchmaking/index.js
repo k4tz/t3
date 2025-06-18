@@ -1,9 +1,9 @@
 import CombatQueue from '../../stores/matchRegistrar/CombatQueue.js';
-import { Challenger } from '../../stores/matchRegistrar/Challenger.js';
+import  Challenger  from '../../stores/matchRegistrar/Challenger.js';
 import Colosseum from '../../stores/colosseum/Colosseum.js';
-import { Arena } from '../../stores/colosseum/Arena.js';
-import { MatchmakingService } from './MatchmakingService.js';
-import { WinLossStrategy } from './strategies/WinLossStrategy.js';
+import  Arena  from '../../stores/colosseum/Arena.js';
+import  MatchmakingService  from './MatchmakingService.js';
+import  WinLossStrategy  from './strategies/WinLossStrategy.js';
 
 let matchmakingService;
 

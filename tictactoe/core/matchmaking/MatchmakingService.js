@@ -1,8 +1,8 @@
-import CombatQueue from '../stores/matchRegistrar/CombatQueue.js';
-import Colosseum from '../stores/colosseum/Colosseum.js';
-import { Arena } from '../stores/colosseum/Arena.js';
+import CombatQueue from '../../stores/matchRegistrar/CombatQueue.js';
+import Colosseum from '../../stores/colosseum/Colosseum.js';
+import Arena from '../../stores/colosseum/Arena.js';
 
-export class MatchmakingService {
+export default class MatchmakingService {
     constructor(strategy, io) {
         this.strategy = strategy;
         this.io = io;
