@@ -1,6 +1,6 @@
-import { Ledger } from './Ledger.js';
+import Ledger from './Ledger.js';
 
-export class Arena {
+export default class Arena {
     constructor({ arenaId, players = [], spectators = [] } = {}) {
         this.arenaId = arenaId;
         this.players = players;

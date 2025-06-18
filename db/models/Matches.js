@@ -14,5 +14,8 @@ const MatchSchema = new Schema({
     timestamps: true 
 });
 
+MatchSchema.index({ playerOne: 1 });
+MatchSchema.index({ playerTwo: 1 });
+MatchSchema.index({ victor: 1 });
 
 export default mongoose.model("Matches", MatchSchema);

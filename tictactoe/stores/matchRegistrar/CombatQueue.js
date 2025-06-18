@@ -1,4 +1,4 @@
-import { Challenger } from './Challenger.js';
+import  Challenger  from './Challenger.js';
 
 class CombatQueue {
     static instance;

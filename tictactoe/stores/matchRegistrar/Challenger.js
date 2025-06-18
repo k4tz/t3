@@ -1,4 +1,4 @@
-export class Challenger {
+export default class Challenger {
     constructor({ playerId, stars = 0, ...playerData } = {}) {
         this.playerId = playerId;
         this.stars = stars;
