@@ -1,5 +1,6 @@
-import User from "../../db/models/User.js";
+import User from "../../db/models/User.ts";
 import bcrypt from "bcryptjs";
+import { AuthTokens } from "../utils/auth.ts";
 
 const register = async ({username, password}) => {
     
@@ -13,7 +14,7 @@ const register = async ({username, password}) => {
     return user;
 }
 
-const login = async ({username, password}) => {
+const login = async ({username, password}): Promise<AuthTokens> => {
     //find user
     const user = await User.where("username", username).findOne();
     
@@ -28,14 +29,13 @@ const login = async ({username, password}) => {
     }
 
     try{
-        const [accessToken, refreshToken] = await utils.auth.generateAuthTokens(user._id, user.username);
+        return await utils.auth.generateAuthTokens(user._id, user.username);
 
-        return [accessToken, refreshToken];
+        // return [accessToken, refreshToken];
     }catch(err){
         console.log(err);
         utils.errors.throwErrWithStatusCode("Something went wrong", 500);
     }
-    
 }
 
 const refreshToken = async (refreshToken) => {

@@ -1,5 +1,7 @@
-function errorHandler(err, req, res, next) {
-    const statusCode = err.status || err.statusCode || 500;
+import {Request, Response, NextFunction} from 'express';
+
+function errorHandler(err: globalThis.Error, req: Request, res: Response, next: NextFunction) {
+    const statusCode = err.statusCode || 500;
 
     const response = {
     success: false,
@@ -14,6 +16,3 @@ function errorHandler(err, req, res, next) {
 }
 
 export default errorHandler;
-  
-
-  

@@ -7,9 +7,9 @@ const corsConfig = {
     methods: process.env.ALLOWED_METHODS?.split(',') || ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: process.env.ALLOWED_HEADERS?.split(',') || ["Content-Type", "Authorization", "Origin", "X-T3-CSRF"],
     credentials: process.env.CREDENTIALS === "true" || true, // ensure it's a boolean
-    maxAge: parseInt(process.env.MAX_AGE, 10) || 1800,
+    maxAge: process.env.MAX_AGE ? parseInt(process.env.MAX_AGE, 10) : 1800,
     preflightContinue: process.env.PREFLIGHT_CONTINUE === "true" || false,
-    optionsSuccessStatus: parseInt(process.env.OPTIONS_SUCCESS_STATUS, 10) || 204
-};
+    optionsSuccessStatus: process.env.OPTIONS_SUCCESS_STATUS ? parseInt(process.env.OPTIONS_SUCCESS_STATUS, 10) : 204
+} as const;
 
 export default corsConfig;

@@ -1,6 +1,6 @@
 import { connectionStore } from "../stores/connection/ConnectionStore.js";
 import ConnectionData from "../stores/connection/ConnectionData.js";
-import User from "../../db/models/User.js";
+import User from "../../db/models/User.ts";
 
 export default function connectionManager(socket) {
     socket.on("authenticate", (data) => {
@@ -16,20 +16,19 @@ export default function connectionManager(socket) {
         const connectionData = new ConnectionData(user, socket);
 
         connectionStore().setConnection(data.userId, connectionData);
-        socket.userID = data.userId;
+        socket.userId = data.userId;
     });
 
     socket.on("leave_presence_channel", (data) => {
-        if(!socket.userID) return;
-        console.log("User leaving has ID: " + socket.userID);
-        connectionStore().removeConnection(socket.userID);
-        socket.userID = undefined;
+        if(!socket.userId) return;
+        connectionStore().removeConnection(socket.userId);
+        socket.userId = undefined;
     });
 
     socket.on("disconnect", () => {
-        if(socket.userID){
-            connectionStore().removeConnection(socket.userID);
-            socket.userID = undefined;
+        if(socket.userId){
+            connectionStore().removeConnection(socket.userId);
+            socket.userId = undefined;
         }
     });
 }

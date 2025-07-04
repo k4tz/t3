@@ -1,10 +1,11 @@
-import express from "express";
-import authenticateToken from "../middleware/authenticateToken.js";
-import authService from "../tictactoe/http/authService.js";
+import express, {Request, Response} from "express";
+import authenticateToken from "../middleware/authenticateToken.ts";
+import authService from "../tictactoe/http/authService.ts";
+import { AuthTokens } from "../tictactoe/utils/auth.ts";
 
 const authRouter = express.Router();
 
-authRouter.post("/register", async (req, res) => {
+authRouter.post("/register", async (req: Request, res: Response) => {
     
     if(!req.body?.username || !req.body?.password) {
         res.status(400).json({
@@ -33,14 +34,15 @@ authRouter.post("/register", async (req, res) => {
             maxAge: 24 * 60 * 60 * 1000 
         });
 
-        return res.status(201).json(user);
+        res.status(201).json(user);
     }catch(err){
+        let code = err.code;
+        let message = err.message;
         if(err.code === 11000){
-            return res.status(400).json({
-                error: "Username already exists."
-            });
+            code = 409;
+            message = "User already exists.";
         }
-        return res.status(500).json({
+        res.status(500).json({
             error: "Something went wrong."
         });
     }

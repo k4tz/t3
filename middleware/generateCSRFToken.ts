@@ -1,7 +1,8 @@
 import crypto from 'crypto';
-import csrfConfig from '../config/csrf.js'; 
+import csrfConfig from '../config/csrf.ts'; 
+import {Request, Response} from 'express';
 
-function generateCsrfToken(req, res, next) {
+function generateCsrfToken(req: Request, res: Response, next) {
     const cookieName = csrfConfig.cookieName.toLowerCase();
     const token = req.cookies[cookieName];
 

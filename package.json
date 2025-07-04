@@ -1,11 +1,11 @@
 {
-  "name": "tac2oeserver",
+  "name": "t3server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "serve": "concurrently \"node --watch --trace-warnings index.js\" \"cd ./client && npm run dev\"",
+    "serve": "concurrently \"node --watch --trace-warnings index.ts\" \"cd ./client && npm run dev\"",
     "server": "node --watch --trace-warnings index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -26,6 +26,9 @@
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.0.10",
     "concurrently": "^9.1.2"
   }
 }
