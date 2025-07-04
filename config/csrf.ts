@@ -1,4 +1,17 @@
-const csrfConfig = {
+interface CSRFConfig {
+    readonly cookieName: string;
+    readonly tokenLength: number;
+    readonly exludePaths: string[];
+    readonly ignoreMethods: string[];
+    readonly cookieOptions: {
+        httpOnly: boolean;
+        sameSite: 'lax' | 'strict' | 'none';
+        secure: boolean;
+    };
+    readonly headerName: string;
+};
+
+const csrfConfig: CSRFConfig = {
     /**
      * Base settings for the CSRF token
      */
@@ -16,7 +29,7 @@ const csrfConfig = {
      */
     cookieOptions: {
         httpOnly: false,
-        sameSite: 'Lax',
+        sameSite: 'lax',
         secure: true,
     },
 

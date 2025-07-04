@@ -1,4 +1,4 @@
-import User from "../../db/models/User.js";
+import User from "../../db/models/User.ts";
 import asyncHandler from "express-async-handler";
 
 const register = asyncHandler(async (req, res) => {

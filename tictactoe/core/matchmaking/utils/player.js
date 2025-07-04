@@ -1,4 +1,4 @@
-import CombatQueue from "../../../stores/matchRegistrar/CombatQueue.js"
+import CombatQueue from "../../../stores/matchRegistrar/CombatQueue.ts"
 
 export function getPlayerStats(playerId) {
     const entry = CombatQueue.getAll().find(e => e.playerId === playerId);

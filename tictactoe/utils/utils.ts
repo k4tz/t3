@@ -3,7 +3,8 @@
  * under the utils object. When adding any new util, make sure to add it to this file so that it becomes globally available too.
  */
 
-import * as errors from "./error.js";
-import * as auth from "./auth.js";
+import * as errors from "./error.ts";
+import * as auth from "./auth.ts";
 
-export { errors, auth };
+
+export { errors, auth};

@@ -1,6 +1,6 @@
 // Import the mongoose module
 import mongoose from "mongoose";
-import User from "./models/User.js";
+import User from "./models/User.ts";
 
 export default async function connectDB() {
     // Set `strictQuery: false` to globally opt into filtering by properties that aren't in the schema

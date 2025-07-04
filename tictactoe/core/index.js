@@ -3,7 +3,7 @@ import connectionManager from "./ConnectionManager.js";
 
 export default async function setupRealtimeEvents(io) {
     io.on("connection", (socket) => {
-        socket.userID = undefined;
+        socket.userId = undefined;
         
         //set up connection manager
         connectionManager(socket);

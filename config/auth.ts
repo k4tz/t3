@@ -7,7 +7,7 @@ const authConfig = {
     refresh_token_secret: process.env.refresh_token_secret || "refresh_secret",
     access_token_expires_in: process.env.access_token_expires_in || "1h",
     refresh_token_expires_in: process.env.refresh_token_expires_in || "1d"
-};
+} as const;
 
 export default authConfig;
 

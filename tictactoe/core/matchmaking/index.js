@@ -1,4 +1,4 @@
-import CombatQueue from '../../stores/matchRegistrar/CombatQueue.js';
+import CombatQueue from '../../stores/matchRegistrar/CombatQueue.ts';
 import  Challenger  from '../../stores/matchRegistrar/Challenger.js';
 import Colosseum from '../../stores/colosseum/Colosseum.js';
 import  Arena  from '../../stores/colosseum/Arena.js';
@@ -16,11 +16,11 @@ export default function setupMatchmaking(socket) {
 
     // Join matchmaking pool
     socket.on("join_matchmaking", (playerData = {}) => {
-        if (socket.userID) {
-            const entry = new Challenger({ playerId: socket.userID, ...playerData });
+        if (socket.userId) {
+            const entry = new Challenger({ playerId: socket.userId, ...playerData });
             CombatQueue.addPlayer(entry);
             socket.emit("matchmaking_status", "searching");
-            console.log(`Player ${socket.userID} joined matchmaking pool`);
+            console.log(`Player ${socket.userId} joined matchmaking pool`);
         } else {
             socket.emit("error", "Must be logged in to join matchmaking");
         }
@@ -28,9 +28,9 @@ export default function setupMatchmaking(socket) {
 
     // Leave matchmaking pool
     socket.on("leave_matchmaking", () => {
-        CombatQueue.removePlayer(socket.userID);
+        CombatQueue.removePlayer(socket.userId);
         socket.emit("matchmaking_status", "cancelled");
-        console.log(`Player ${socket.userID} left matchmaking pool`);
+        console.log(`Player ${socket.userId} left matchmaking pool`);
     });
 
     // Player makes a move
@@ -41,7 +41,7 @@ export default function setupMatchmaking(socket) {
             return;
         }
         // Determine player's mark (X or O) based on position in arena.players
-        const playerIdx = arena.players.indexOf(socket.userID);
+        const playerIdx = arena.players.indexOf(socket.userId);
         if (playerIdx === -1) {
             socket.emit("error", "Not a player in this arena");
             return;
@@ -75,7 +75,7 @@ export default function setupMatchmaking(socket) {
         CombatQueue.removePlayer(socket.id);
         // Remove player from any game arena
         for (const arena of Colosseum.getAllarena()) {
-            if (arena.players.includes(socket.userID)) {
+            if (arena.players.includes(socket.userId)) {
                 Colosseum.removeArena(arena.arenaId);
                 socket.to(arena.arenaId).emit("player_disconnected");
                 break;
@@ -89,7 +89,7 @@ function findMatch(socket) {
     if (pool.length < 2) return;
 
     // Get the current player
-    const currentPlayer = pool.find(p => p.playerId === socket.userID);
+    const currentPlayer = pool.find(p => p.playerId === socket.userId);
     if (!currentPlayer) return;
 
     // Use rank-based matchmaking
@@ -117,10 +117,10 @@ function findMatch(socket) {
     });
     Colosseum.createArena(arena);
 
-    // Find sockets by userID
+    // Find sockets by userId
     const sockets = Array.from(socket.server.sockets.sockets.values());
-    const player1Socket = sockets.find(s => s.userID === currentPlayer.playerId);
-    const player2Socket = sockets.find(s => s.userID === bestMatch.playerId);
+    const player1Socket = sockets.find(s => s.userId === currentPlayer.playerId);
+    const player2Socket = sockets.find(s => s.userId === bestMatch.playerId);
 
     // Join both players to the arena
     if (player1Socket) player1Socket.join(arenaId);

@@ -1,4 +1,4 @@
-import CombatQueue from '../../stores/matchRegistrar/CombatQueue.js';
+import CombatQueue from '../../stores/matchRegistrar/CombatQueue.ts';
 import Colosseum from '../../stores/colosseum/Colosseum.js';
 import Arena from '../../stores/colosseum/Arena.js';
 
@@ -93,9 +93,9 @@ export default class MatchmakingService {
         });
         Colosseum.createArena(arena);
 
-        // Find sockets by userID
-        const player1Socket = this.findSocketByUserId(player1.playerId);
-        const player2Socket = this.findSocketByUserId(player2.playerId);
+        // Find sockets by userId
+        const player1Socket = this.findSocketByuserId(player1.playerId);
+        const player2Socket = this.findSocketByuserId(player2.playerId);
 
         // Join both players to the arena
         if (player1Socket) player1Socket.join(arenaId);
@@ -116,8 +116,8 @@ export default class MatchmakingService {
         console.log(`Match created in arena ${arenaId} between ${player1.playerId} and ${player2.playerId}`);
     }
 
-    findSocketByUserId(userId) {
+    findSocketByuserId(userId) {
         return Array.from(this.io.sockets.sockets.values())
-            .find(socket => socket.userID === userId);
+            .find(socket => socket.userId === userId);
     }
 }
