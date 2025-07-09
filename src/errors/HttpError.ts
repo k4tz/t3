@@ -1,0 +1,16 @@
+export default class HttpError extends Error {
+    statusCode: number;
+    code?: string; // optional error code (e.g. "USER_NOT_FOUND")
+    data?: any;    // optional payload
+
+    constructor(message: string, statusCode: number = 500, options?: { code?: string; data?: any }) {
+        super(message);
+        this.statusCode = statusCode;
+        this.code = options?.code;
+        this.data = options?.data;
+
+        Error.captureStackTrace(this, this.constructor);
+    }
+}
+
+export type HttpErrortype = typeof HttpError;
