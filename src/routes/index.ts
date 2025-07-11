@@ -1,9 +1,6 @@
+import authRouter from './v1/auth.routes.ts';
 import express from 'express';
 
-import authRouter from './auth.routes.ts';
-
-const router = express.Router();
-
-router.use('/', authRouter);
-
-export default router;
+export default function setupRouter(app: express.Express) {
+    app.use("/v1", authRouter);
+}

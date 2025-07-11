@@ -1,18 +1,14 @@
 import express, {Request, Response} from "express";
-import authenticateToken from "../middleware/authenticateToken.ts";
-import authService from "../tictactoe/http/authService.ts";
-// import HttpError from "../errors/HttpError.ts";
+import authenticateToken from "../../middleware/authenticateToken.ts";
+import authService from "../../tictactoe/http/authService.ts";
+import asyncHandler from "express-async-handler";
 
 const authRouter = express.Router();
 
-authRouter.post("/register", async (req: Request, res: Response) => {
+authRouter.post("/register", asyncHandler(async (req: Request, res: Response) => {
     
     if(!req.body?.username || !req.body?.password) {
-        res.status(400).json({
-            error: "Username and password are required."
-        });
-
-        return;
+        throw new HttpError("Username and password are required.", 400);
     }
 
     try {
@@ -46,7 +42,7 @@ authRouter.post("/register", async (req: Request, res: Response) => {
             error: "Something went wrong."
         });
     }
-});
+}));
 
 authRouter.post("/login", async (req, res) => {
 
