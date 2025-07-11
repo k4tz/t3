@@ -1,10 +1,12 @@
 import dotenv from 'dotenv';
-import connectDB from './db/db_connect.ts';
+import connectDB from './db/connect.ts';
 import * as utils from "./tictactoe/utils/utils.ts";
 import setupMiddleware from "./middleware/index.ts";
-import router from "./routes/index.ts";
+import setupRouter from "./routes/index.ts";
 
 import type { Express } from 'express';
+
+import setupErrorHandlers from './errors/index.ts';
 import HttpError from './errors/HttpError.ts';
 
 dotenv.config();
@@ -17,17 +19,20 @@ globalThis.HttpError = HttpError;
  * @description: Bootstraps the application. Includes:
  * - Setting up middleware
  * - Setting up routes
+ * - Setting up error handler
  * - Database connection
  */
 export default async function bootstrap(app: Express) {
 
     console.log("Init Bootstrapping...");
-    //execute all the bootstrap logic
 
     try{
         setupMiddleware(app);
-        app.use("/", router);
-        //connect to db
+
+        setupRouter(app);
+
+        setupErrorHandlers(app);
+
         await connectDB();
 
         console.log("Bootstrapping complete.");

@@ -1,4 +1,4 @@
-export default class HttpError extends Error {
+export default class ValidationError extends Error {
     statusCode: number;
     code?: string;
     data?: any;
@@ -13,4 +13,4 @@ export default class HttpError extends Error {
     }
 }
 
-export type HttpErrortype = typeof HttpError;
+export type ValidationErrorype = typeof ValidationError;
