@@ -1,8 +1,9 @@
 import connectionStore from "../stores/connection/ConnectionStore.ts";
 import ConnectionData, { UserConnectionData } from "../stores/connection/ConnectionData.ts";
 import User from "../../db/models/User.ts";
+import { Socket } from "socket.io";
 
-export default function connectionManager(socket) {
+export default function connectionManager(socket: Socket) {
     socket.on("authenticate", (data: {userId: string}) => {
         //check if a previous connection exists and if it does, we properly remove and disconnect it
         let previousConnection = connectionStore.getConnection(data.userId)
