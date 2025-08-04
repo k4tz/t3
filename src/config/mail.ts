@@ -1,5 +1,5 @@
 /**
- * @description: Define cors config variables
+ * @description: Define mail config variables
  */
 
 const mailConfig = {
