@@ -9,8 +9,6 @@ import setupRealtimeEvents from "./tictactoe/core/index.ts"
 import appConfig from "./config/app.ts";
 import corsConfig from "./config/cors.ts";
 
-console.log(appConfig.port)
-
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, { cors: { origin: corsConfig.origin } });

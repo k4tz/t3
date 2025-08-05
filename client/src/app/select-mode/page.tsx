@@ -1,9 +1,11 @@
 "use client";
 
-import { useGameState } from "@/store/gameState";
+import useGameState from "@/store/gameState";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import  BackArrow  from "@/components/ui/back-arrow";
+import useAuthStore from "@/store/useAuthStore";
+import useConnectionStore from "@/store/useConnectionStore";
 
 /**
  * 
@@ -14,6 +16,8 @@ export default function GameModeSelect(){
     const { gameMode, setGameMode } = useGameState();
     const router = useRouter();
     const [ warning, setWarning ] = useState(false);
+    const { isAuthenticated } = useAuthStore();
+    const { isConnected } = useConnectionStore();
 
     function startGame(){
         if(!gameMode){
@@ -32,7 +36,9 @@ export default function GameModeSelect(){
                     <button className="btn bg-green-500 p-2 font-bold text-xl hover:bg-green-700" onClick={() => setGameMode('online')}>Online {gameMode === 'online' && '✅'}</button>
                     <button className="btn bg-red-500 p-2 font-bold text-xl hover:bg-red-700" onClick={() => setGameMode('offline')}>Offline {gameMode === 'offline' && '✅'}</button>
                 </div>
-                <button className="w-full bg-teal-500 hover:bg-teal-700  p-2 font-bold text-xl" onClick={startGame}>Start Game</button>
+                {gameMode === "offline" && <button className="w-full bg-teal-500 hover:bg-teal-700  p-2 font-bold text-xl" onClick={startGame}>Start Game</button>}
+                {gameMode === "online" && isAuthenticated && <button className="w-full bg-teal-500 hover:bg-teal-700  p-2 font-bold text-xl" onClick={startGame} disabled={!isConnected}>Join Matchmaking</button>}
+                {!isAuthenticated && gameMode === "online" && <button className="w-full bg-teal-500 hover:bg-teal-700  p-2 font-bold text-xl" title="Please login before joining an online match" onClick={() => router.push('/login')}>Login</button>}
                 {!gameMode && warning && <p className="text-center text-red-500 font-bold">Please select a mode first.</p>}
             </div>
         </div>

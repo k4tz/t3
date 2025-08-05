@@ -17,7 +17,7 @@ export default function Navbar() {
             </div>
             <div className="flex flex-grow justify-evenly gap-5">
                 <Link href="/" className="hover:underline transition-all">Home</Link>
-                <Link href="/game">Game</Link>
+                <Link href="/select-mode">Start game</Link>
             </div>
             <div className="flex-grow flex justify-end">
                 { isAuthenticated ? 
