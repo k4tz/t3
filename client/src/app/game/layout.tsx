@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Themes from "@/components/themes";
 import RouteGuard from "@/components/RouteGuard";
-import { useGameState } from "@/store/gameState";
+import useGameState from "@/store/gameState";
 import useAuthStore from '@/store/useAuthStore';
 import Loader from "@/components/loader";
 import { useRouter } from "next/navigation";
