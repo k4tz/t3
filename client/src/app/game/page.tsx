@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { SquareProps } from "@/types/ttt"
+import  BackArrow  from "@/components/ui/back-arrow";
 
 export default function Board() {
   
@@ -287,7 +288,7 @@ export default function Board() {
 
   return <>
     <div id="game_screen" className="h-screen flex flex-col md:flex-row items-center justify-center">
-      
+      <BackArrow text="Change Mode" relUrl='/select-mode' />
       <div className="w-fit board relative">
         <h1 className="text-4xl font-bold absolute top-[-30%] md:top-[-20%] text-white">
             {winner ? `Winner: ${winner}` : gameSteps.length < 9 ? `Player: ${currentTurn()}` : 'Game over'}
