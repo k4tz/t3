@@ -35,20 +35,12 @@ Create a `.env` file in the root directory with the following variables:
 # Server Configuration
 APP_PORT=5000
 
-# Match Configuration
-MATCH_AUTO_CLOSE_TIMER=15
-
 # Database Configuration
-MONGODB_URI=mongodb://localhost:27017/tictactoe
+DATABASE_CONN_URL=mongodb://localhost:27017/t3
 
 # JWT Configuration
-JWT_SECRET=your_jwt_secret_here
-
-# Email Configuration (if using email features)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
+ACCESS_TOKEN_SECRET=your_jwt_secret_here
+REFRESH_TOKEN_SECRET=your_jwt_secret_here
 ```
 
 ## Installation
