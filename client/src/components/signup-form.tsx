@@ -74,10 +74,10 @@ export function SignupForm({
 
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
-        <Card>
+        <Card className="!bg-white !bg-opacity-10 backdrop-blur-sm border-white border-opacity-20">
             <CardHeader>
-            <CardTitle className="text-2xl">Sign Up</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Sign Up</CardTitle>
+            <CardDescription className="text-gray-300 text-center">
                 Enter details to create your account
             </CardDescription>
             </CardHeader>
@@ -85,7 +85,7 @@ export function SignupForm({
             <form method="post" id="signup-form">
                 <div className="flex flex-col gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="Username">Username</Label>
+                        <Label htmlFor="Username" className="text-white font-semibold">Username</Label>
                         <Input
                         id="Username"
                         type="Username"
@@ -93,20 +93,28 @@ export function SignupForm({
                         placeholder="eg: Kraken115"
                         // required
                         onChange={handleInputsChange}
+                        className="bg-white bg-opacity-10 border-white border-opacity-30 text-white placeholder:text-gray-400 focus:border-purple-400"
                         />
                     </div>
                     <div className="grid gap-2">
                         <div className="flex items-center">
-                            <Label htmlFor="password">Password</Label>
+                            <Label htmlFor="password" className="text-white font-semibold">Password</Label>
                         </div>
-                        <Input id="password" name="password" type="password" onChange={handleInputsChange} required />
+                        <Input 
+                            id="password" 
+                            name="password" 
+                            type="password" 
+                            onChange={handleInputsChange} 
+                            required 
+                            className="bg-white bg-opacity-10 border-white border-opacity-30 text-white placeholder:text-gray-400 focus:border-purple-400"
+                        />
                     </div>
-                    <Button type="submit" className="w-full">
+                    <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 transition-all duration-300 transform hover:scale-105">
                         {isLoading ? "Signing up..." : "Sign up"}
                     </Button>
                 </div>
-                <div className="mt-4 text-center text-sm">
-                    <Link href="/login" className="underline underline-offset-4">
+                <div className="mt-4 text-center text-sm text-gray-300">
+                    <Link href="/login" className="text-purple-400 hover:text-purple-300 underline underline-offset-4 transition-colors duration-300">
                         Back to login
                     </Link>
                 </div>

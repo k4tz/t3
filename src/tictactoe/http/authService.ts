@@ -2,6 +2,7 @@ import User from "../../db/models/User.ts";
 import bcrypt from "bcryptjs";
 import { AuthTokens } from "../utils/auth.ts";
 import authConfig from "../../config/auth.ts";
+import * as utils from "../utils/utils.ts";
 
 interface AuthData {
     username: string,
@@ -55,4 +56,27 @@ const refreshToken = async (refreshToken: string) => {
     }
 }
 
-export default { register, login, refreshToken }
+const changePassword = async (userId: string, currentPassword: string, newPassword: string) => {
+    // Find user
+    const user = await User.findById(userId);
+    
+    if (!user) {
+        utils.errors.throwErrWithStatusCode("User not found", 404);
+    }
+
+    // Check current password
+    const passwordIsCorrect = await bcrypt.compare(currentPassword, user.password);
+    if (!passwordIsCorrect) {
+        utils.errors.throwErrWithStatusCode("Current password is incorrect", 400);
+    }
+
+    // Hash new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await User.findByIdAndUpdate(userId, { password: hashedNewPassword });
+
+    return { message: "Password changed successfully" };
+}
+
+export default { register, login, refreshToken, changePassword }
