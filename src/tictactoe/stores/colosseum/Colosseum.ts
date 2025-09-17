@@ -1,52 +1,53 @@
 import Arena from './Arena.ts';
 
-let _instance: null | Colosseum = null;
-
 class Colosseum {
-    #colosseum = new Map<string, Arena>();
-    constructor() {
-        if (!_instance) {
-            _instance = this;
+    private colosseum = new Map<string, Arena>();
+    private static instance: Colosseum | null = null;
+
+    private constructor() {}
+
+    static getInstance(): Colosseum {
+        if (!Colosseum.instance) {
+            Colosseum.instance = new Colosseum();
         }
-        return _instance;
+        return Colosseum.instance;
     }
 
     createArena(arenaData) {
         const arena = new Arena(arenaData);
-        this.#colosseum.set(arena.getArenaId(), arena);
+        this.colosseum.set(arena.getArenaId(), arena);
         return arena;
     }
 
     removeArena(arenaId: string) {
-        this.#colosseum.delete(arenaId);
+        this.colosseum.delete(arenaId);
     }
 
     getArena(arenaId: string) {
-        return this.#colosseum.get(arenaId);
+        return this.colosseum.get(arenaId);
     }
 
-    addSpectator(arenaId, spectator) {
-        const arena = this.#colosseum.get(arenaId);
+    addSpectator(arenaId: string, spectatorId: string) {
+        const arena = this.colosseum.get(arenaId);
         if (arena) {
-            arena.addSpectator(spectator);
+            arena.addSpectator(spectatorId);
         }
     }
 
-    addPlayer(arenaId, player) {
-        const arena = this.#colosseum.get(arenaId);
+    addPlayer(arenaId: string, playerId: string) {
+        const arena = this.colosseum.get(arenaId);
         if (arena) {
-            arena.addPlayer(player);
+            arena.addPlayer(playerId);
         }
     }
 
     getAllArena() {
-        return Array.from(this.#colosseum.values());
+        return Array.from(this.colosseum.values());
     }
 
     clear() {
-        this.#colosseum.clear();
+        this.colosseum.clear();
     }
 }
 
-const instance = new Colosseum();
-export default instance;
+export default Colosseum.getInstance();

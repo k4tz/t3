@@ -4,7 +4,7 @@ let __instance: null | ConnectionStore = null;
 
 class ConnectionStore{
 
-    #connections = new Map<string, ConnectionData>();
+    private connections = new Map<string, ConnectionData>();
     constructor(){
         if(!__instance){
             __instance = this;
@@ -13,19 +13,19 @@ class ConnectionStore{
     }
 
     setConnection(userId: string, connectionData: ConnectionData){
-        this.#connections.set(userId, connectionData);
+        this.connections.set(userId, connectionData);
     }
 
     getConnection(userId: string){
-        return this.#connections.get(userId);
+        return this.connections.get(userId);
     }
 
     removeConnection(userId: string){
-        this.#connections.delete(userId);
+        this.connections.delete(userId);
     }
 
     totalConnections(){
-        return this.#connections.size;
+        return this.connections.size;
     }
 }
 

@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
+import HttpError from '../HttpError.ts';
 
 const responseHandler = (
-    err: any,
+    err: Error | HttpError,
     req: Request,
     res: Response,
     next: NextFunction
@@ -11,6 +12,34 @@ const responseHandler = (
     }
 
     const isHttpError = err instanceof HttpError;
+    
+    // Handle MongoDB duplicate key errors
+    if ('code' in err && err.code === 'E11000') {
+        const statusCode = 409; // Conflict
+        res.status(statusCode).json({
+            success: false,
+            message: 'User already exists',
+            code: statusCode,
+            ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
+        });
+
+        return;
+    }
+    
+    // Handle other MongoDB errors
+    if (err.name === 'ValidationError') {
+        const statusCode = 400; // Bad Request
+        res.status(statusCode).json({
+            success: false,
+            message: 'Validation error',
+            code: statusCode,
+            ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
+        });
+
+        return;
+    }
+    
+    // Handle HttpError instances
     const statusCode = isHttpError ? err.statusCode : 500;
 
     res.status(statusCode).json({

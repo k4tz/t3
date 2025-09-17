@@ -6,12 +6,19 @@ interface ConnectionState {
     isConnected: boolean;
     isAuthenticated: boolean;
     totalActiveUsers: number;
+    connectionLost: boolean;
+    lastConnectionTime: number | null;
+    reconnectAttempts: number;
+    maxReconnectAttempts: number;
     registerSync: () => () => void;
     registerGlobalListeners: () => () => void;
     connect: () => void;
     disconnect: () => void;
     upgradeToPresenceChannel: () => void;
     leavePresenceChannel: () => void;
+    handleConnectionLoss: () => void;
+    handleReconnection: () => void;
+    resetReconnectAttempts: () => void;
 }
 
 const useConnectionStore = create<ConnectionState>((set, get) => ({
@@ -19,12 +26,32 @@ const useConnectionStore = create<ConnectionState>((set, get) => ({
     isConnected: socket.connected,
     isAuthenticated: false,
     totalActiveUsers: 0,
+    connectionLost: false,
+    lastConnectionTime: null,
+    reconnectAttempts: 0,
+    maxReconnectAttempts: 5,
     registerSync: () => {
         const cSync = () => {
-            set({ isConnected: true });
+            const state = get();
+            set({ 
+                isConnected: true, 
+                connectionLost: false,
+                lastConnectionTime: Date.now(),
+                reconnectAttempts: 0
+            });
+            
+            // Handle reconnection
+            if (state.connectionLost) {
+                get().handleReconnection();
+            }
         }
+        
         const dSync = () => {
-            set({ isConnected: false });
+            set({ 
+                isConnected: false,
+                connectionLost: true
+            });
+            get().handleConnectionLoss();
         }
 
         socket.on("connect", cSync);
@@ -41,10 +68,37 @@ const useConnectionStore = create<ConnectionState>((set, get) => ({
             set({ totalActiveUsers: activeUsersCount });
         }
 
+        // Matchmaking event listeners
+        const matchmakingStatus = (status: string) => {
+            console.log(`[Client] Received matchmaking_status: ${status}`);
+            // Import useGameState dynamically to avoid circular dependency
+            import('./gameState').then(({ default: useGameState }) => {
+                useGameState.getState().setMatchmakingStatus(status as any);
+            });
+        };
+
+        const matchFound = (data: { arenaId: string; opponent: string; opponentId: string; queueTime: number; playerMark: 'X' | 'O' }) => {
+            console.log(`[Client] Received match_found:`, data);
+            // Import useGameState dynamically to avoid circular dependency
+            import('./gameState').then(({ default: useGameState }) => {
+                useGameState.getState().setMatchFound(data);
+            });
+        };
+
+        const error = (message: string) => {
+            console.error(`[Client] Socket error:`, message);
+        };
+
         socket.on("total_active_users", activeUsers);
+        socket.on("matchmaking_status", matchmakingStatus);
+        socket.on("match_found", matchFound);
+        socket.on("error", error);
 
         return () => {
             socket.off("total_active_users", activeUsers);
+            socket.off("matchmaking_status", matchmakingStatus);
+            socket.off("match_found", matchFound);
+            socket.off("error", error);
         }
     },
     connect: () => {
@@ -82,6 +136,58 @@ const useConnectionStore = create<ConnectionState>((set, get) => ({
         }
 
         set({ isAuthenticated: false });
+    },
+
+    handleConnectionLoss: () => {
+        const state = get();
+        console.log(`[ConnectionStore] Connection lost, attempts: ${state.reconnectAttempts}`);
+        
+        // Save current game state to localStorage for recovery
+        const gameState = localStorage.getItem('tactoe_game_state');
+        if (gameState) {
+            localStorage.setItem('tactoe_game_state_backup', gameState);
+        }
+        
+        // Attempt automatic reconnection with exponential backoff
+        if (state.reconnectAttempts < state.maxReconnectAttempts) {
+            const delay = Math.min(1000 * Math.pow(2, state.reconnectAttempts), 10000);
+            setTimeout(() => {
+                const currentState = get();
+                if (currentState.connectionLost && !currentState.isConnected) {
+                    console.log(`[ConnectionStore] Attempting reconnection ${currentState.reconnectAttempts + 1}/${currentState.maxReconnectAttempts}`);
+                    set({ reconnectAttempts: currentState.reconnectAttempts + 1 });
+                    socket.connect();
+                }
+            }, delay);
+        }
+    },
+
+    handleReconnection: () => {
+        console.log(`[ConnectionStore] Reconnected successfully`);
+        
+        // Restore authentication
+        const userId = localStorage.getItem("tactoe_user");
+        if (userId) {
+            get().upgradeToPresenceChannel();
+        }
+        
+        // Check for game state restoration
+        const backupState = localStorage.getItem('tactoe_game_state_backup');
+        if (backupState) {
+            try {
+                const gameState = JSON.parse(backupState);
+                if (gameState.arenaId && gameState.gameMode === 'online') {
+                    console.log(`[ConnectionStore] Requesting game state restoration for arena ${gameState.arenaId}`);
+                    // The server will automatically send game_state_restore if user was in an active game
+                }
+            } catch (error) {
+                console.error(`[ConnectionStore] Failed to parse backup game state:`, error);
+            }
+        }
+    },
+
+    resetReconnectAttempts: () => {
+        set({ reconnectAttempts: 0 });
     },
 }));
 

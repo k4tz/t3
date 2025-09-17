@@ -2,5 +2,8 @@
     "watch": ["src"],
     "ext": "ts",
     "ignore": ["src/**/*.spec.ts", "dist"],
-    "exec": "tsc && node dist/index.js"
+    "exec": "tsc && node dist/index.js",
+    "delay": 1000,
+    "killTimeout": 5000,
+    "restartable": "rs"
 }

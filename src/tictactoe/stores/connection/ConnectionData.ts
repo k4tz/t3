@@ -6,35 +6,35 @@ export interface UserConnectionData{
 }
 
 export default class ConnectionData{
-    #userData: UserConnectionData;
-    #socket: Socket;
-    #connectedAt: number;
-    #lastActiveAt: number;
+    private userData: UserConnectionData;
+    private socket: Socket;
+    private connectedAt: number;
+    private lastActiveAt: number;
 
     constructor(userData: UserConnectionData, conn: Socket){
-        this.#userData = userData;
-        this.#socket = conn;
-        this.#connectedAt = Date.now();
-        this.#lastActiveAt = Date.now();
+        this.userData = userData;
+        this.socket = conn;
+        this.connectedAt = Date.now();
+        this.lastActiveAt = Date.now();
     }
 
     getUserData(){
-        return {...this.#userData};
+        return {...this.userData};
     }
 
     getSocket(){
-        return this.#socket;
+        return this.socket;
     }
 
     updateLastActive(){
-        this.#lastActiveAt = Date.now();
+        this.lastActiveAt = Date.now();
     }
 
     isActive(){
-        return Date.now() - this.#lastActiveAt < 300000;
+        return Date.now() - this.lastActiveAt < 300000;
     }
 
-    connectedAt(){
-        return this.#connectedAt;
+    getConnectedAt(){
+        return this.connectedAt;
     }
 }

@@ -1,65 +1,65 @@
 export default class Ledger {
-    #boardState: Array<String[]>;
-    #gameSteps: Array<String[][]>;
-    #xMoveSet: Array<String>;
-    #oMoveSet: Array<String>;
-    #lastMove: String;
-    #winner: String;
-    #currentStep: number;
-    #leadingMark: String;
-    #winnerPlacements: Array<Number>;
-    #isReplaying: boolean;
+    private boardState: Array<string[]>;
+    private gameSteps: Array<string[][]>;
+    private xMoveSet: Array<string>;
+    private oMoveSet: Array<string>;
+    private lastMove: string;
+    private winner: string;
+    private currentStep: number;
+    private leadingMark: string;
+    private winnerPlacements: Array<number>;
+    private isReplaying: boolean;
     constructor() {
-        this.#boardState = [
+        this.boardState = [
             ['', '', ''],
             ['', '', ''],
             ['', '', '']
         ];
-        this.#gameSteps = [];
-        this.#xMoveSet = [];
-        this.#oMoveSet = [];
-        this.#lastMove = '';
-        this.#winner = '';
-        this.#currentStep = 9;
-        this.#leadingMark = '';
-        this.#winnerPlacements = [];
-        this.#isReplaying = false;
+        this.gameSteps = [];
+        this.xMoveSet = [];
+        this.oMoveSet = [];
+        this.lastMove = '';
+        this.winner = '';
+        this.currentStep = 9;
+        this.leadingMark = '';
+        this.winnerPlacements = [];
+        this.isReplaying = false;
     }
 
     isValidMove(player, row, col) {
         // Only allow if cell is empty and it's the player's turn
-        if (this.#winner) return false;
+        if (this.winner) return false;
         if (row < 0 || row > 2 || col < 0 || col > 2) return false;
-        if (this.#boardState[row][col]) return false;
+        if (this.boardState[row][col]) return false;
         // First move: leadingMark
-        if (!this.#leadingMark) {
+        if (!this.leadingMark) {
             return true;
         }
         // After first move, enforce turn order
-        const expected = this.#lastMove === 'X' ? 'O' : 'X';
+        const expected = this.lastMove === 'X' ? 'O' : 'X';
         return player === expected;
     }
 
     applyMove(player, row, col) {
         if (!this.isValidMove(player, row, col)) return false;
-        this.#boardState[row][col] = player;
-        this.#lastMove = player;
+        this.boardState[row][col] = player;
+        this.lastMove = player;
         const moveIdx = 3 * row + col;
         if (player === 'X') {
-            this.#xMoveSet.push(moveIdx);
+            this.xMoveSet.push(moveIdx);
         } else {
-            this.#oMoveSet.push(moveIdx);
+            this.oMoveSet.push(moveIdx);
         }
-        this.#gameSteps.push(this.#boardState.map(row => row.slice()));
-        if (!this.#leadingMark) this.#leadingMark = player;
-        this.#currentStep--;
+        this.gameSteps.push(this.boardState.map(row => row.slice()));
+        if (!this.leadingMark) this.leadingMark = player;
+        this.currentStep--;
         this.checkVictory();
         return true;
     }
 
     checkVictory() {
         // Check all win conditions
-        const b = this.#boardState;
+        const b = this.boardState;
         const lines = [
             // Rows
             [[0,0],[0,1],[0,2]],
@@ -77,20 +77,41 @@ export default class Ledger {
             const [a, b1, c] = line;
             const v = b[a[0]][a[1]];
             if (v && v === b[b1[0]][b1[1]] && v === b[c[0]][c[1]]) {
-                this.#winner = v;
-                this.#winnerPlacements = line.map(([r, c]) => 3*r+c);
+                this.winner = v;
+                this.winnerPlacements = line.map(([r, c]) => 3*r+c);
                 return v;
             }
         }
-        if (this.#currentStep === 0 && !this.#winner) {
-            this.#winner = 'draw';
+        if (this.currentStep === 0 && !this.winner) {
+            this.winner = 'draw';
         }
-        return this.#winner;
+        return this.winner;
     }
 
     switchTurn() {
-        if (!this.#lastMove) return 'X';
-        return this.#lastMove === 'X' ? 'O' : 'X';
+        if (!this.lastMove) return 'X';
+        return this.lastMove === 'X' ? 'O' : 'X';
+    }
+
+    // Getters for external access
+    get board() {
+        return this.boardState;
+    }
+
+    get currentPlayer() {
+        return this.switchTurn();
+    }
+
+    getWinner() {
+        return this.winner;
+    }
+
+    getLastMove() {
+        return this.lastMove;
+    }
+
+    getGameSteps() {
+        return this.gameSteps;
     }
 }
 

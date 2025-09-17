@@ -5,6 +5,8 @@ import AuthProvider from "@/components/providers/AuthProvider";
 import { Toaster } from "react-hot-toast"
 import { ThemeProvider } from "@/components/theme-provider"
 import ConnectManager from "@/components/ConnectManager"
+import MatchmakingProvider from "@/components/MatchmakingProvider"
+import GameStateRestoration from "@/components/GameStateRestoration"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +36,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-dvh h-dvh`}
       >
         <ConnectManager />
+        <GameStateRestoration />
         <ThemeProvider
             attribute="class"
             defaultTheme="dark"
@@ -41,7 +44,9 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <AuthProvider>
-                {children}
+                <MatchmakingProvider>
+                    {children}
+                </MatchmakingProvider>
             </AuthProvider>
         </ThemeProvider>
         <Toaster />

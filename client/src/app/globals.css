@@ -58,7 +58,11 @@
     0 0 5px #ff005d,    /* Inner glow */
     0 0 10px #ff00b3,   /* Outer glow */
     0 0 20px #ee7c89,   /* Larger glow */
-    0 0 40px #e873bf; 
+    0 0 40px #e873bf,
+    0 0 60px #ff6b9d;   /* Extra large glow */
+  animation: winnerGlow 2s ease-in-out infinite alternate;
+  border: 2px solid #ff005d !important;
+  transform: scale(1.05);
 }
 
 
@@ -91,7 +95,11 @@
     0 0 5px #00ffff,    /* Inner glow */
     0 0 10px #00ffff,   /* Outer glow */
     0 0 20px #00ffff,   /* Larger glow */
-    0 0 40px #00ffcc; 
+    0 0 40px #00ffcc,
+    0 0 60px #00ffff;   /* Extra large glow */
+  animation: winnerGlow 2s ease-in-out infinite alternate;
+  border: 2px solid #00ffff !important;
+  transform: scale(1.05);
 }
 
 
@@ -124,10 +132,34 @@
 }
 .Retro .winner-placement{
   box-shadow: 
-    0 0 5px #00ffff,    /* Inner glow */
-    0 0 10px #00ffff,   /* Outer glow */
-    0 0 20px #00ffff,   /* Larger glow */
-    0 0 40px #00ffcc; 
+    0 0 5px #ff6b35,    /* Inner glow */
+    0 0 10px #ff6b35,   /* Outer glow */
+    0 0 20px #ff6b35,   /* Larger glow */
+    0 0 40px #ff8c42,
+    0 0 60px #ff6b35;   /* Extra large glow */
+  animation: winnerGlow 2s ease-in-out infinite alternate;
+  border: 2px solid #ff6b35 !important;
+  transform: scale(1.05);
+}
+
+/* Winner glow animation */
+@keyframes winnerGlow {
+  0% {
+    box-shadow: 
+      0 0 5px currentColor,
+      0 0 10px currentColor,
+      0 0 20px currentColor,
+      0 0 40px currentColor,
+      0 0 60px currentColor;
+  }
+  100% {
+    box-shadow: 
+      0 0 10px currentColor,
+      0 0 20px currentColor,
+      0 0 40px currentColor,
+      0 0 60px currentColor,
+      0 0 80px currentColor;
+  }
 }
 
 progress {

@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 
+/**
+ * @description error logs should be handled here. For now simply logging to console, connect 
+ * to external logging service in production.
+ */
 const errorLogHandler = (
     err: any,
     req: Request,

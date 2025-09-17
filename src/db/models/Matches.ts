@@ -9,6 +9,9 @@ const MatchSchema = new Schema({
     duration:  { type: Number },
     startedAt: { type: Date, default: Date.now },
     endedAt:   { type: Date },
+    gameSteps: { type: [[[String]]], default: [] }, // Array of board states for each move
+    finalBoardState: { type: [[String]], default: [] }, // Final board state
+    endReason: { type: String, enum: ['timeout', 'surrender', 'victory', 'disconnect'], default: 'victory' },
 }, 
 { 
     timestamps: true 
