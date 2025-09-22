@@ -39,9 +39,9 @@ export default function MatchmakingUI({ onMatchFound, isModal = false }: Matchma
                 <h2 className="text-2xl font-bold text-white mb-4">Ready to Play?</h2>
                 <p className="text-gray-300 mb-4">Join the matchmaking queue to find an opponent</p>
                 
-                {/* User Rank Display */}
+                {/* User Rank Display (based on totalStars) */}
                 <div className="mb-6 flex justify-center">
-                    <RankDisplay wins={user?.wins || 0} showProgress={true} />
+                    <RankDisplay wins={user?.totalStars || 0} />
                 </div>
                 
                 <Button 
@@ -70,12 +70,9 @@ export default function MatchmakingUI({ onMatchFound, isModal = false }: Matchma
                             <div className="text-yellow-400 text-xl">⚠️</div>
                             <div className="text-yellow-400 font-semibold">Low Queue Activity</div>
                         </div>
-                        <p className="text-yellow-200 text-sm">
-                            There are not many players queuing right now. Matchmaking may take longer than usual.
+                        <p className="text-yellow-200 text-sm text-center">
+                            Players are low right now. Matchmaking may take longer than usual.
                         </p>
-                        <div className="text-yellow-300 text-xs mt-2">
-                            Current queue: {queueSize} player{queueSize !== 1 ? 's' : ''}
-                        </div>
                     </div>
                 )}
                 

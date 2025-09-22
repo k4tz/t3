@@ -76,7 +76,7 @@ const useGameState = create<GameState>((set, get) => ({
         
         // Clear any existing game state before starting new matchmaking
         if (state.arenaId || state.matchmakingStatus === 'found') {
-                console.log(`[GameState] Clearing existing game state before starting new matchmaking`);
+                
                 set({
                     arenaId: null,
                     opponent: null,
@@ -132,7 +132,7 @@ const useGameState = create<GameState>((set, get) => ({
     },
     
     setMatchFound: (data) => {
-        console.log(`[GameState] Setting match found:`, data);
+        
         set({
             gameMode: 'online',
             matchmakingStatus: 'found',
@@ -151,7 +151,7 @@ const useGameState = create<GameState>((set, get) => ({
         });
         
         // Players are already added to arena during matchmaking, no need to join again
-        console.log(`[GameState] Match found, players already in arena: ${data.arenaId}, player mark: ${data.playerMark}`);
+        
         
         // Clear timer
         const windowWithTimer = window as Window & { matchmakingTimer?: NodeJS.Timeout };
@@ -171,21 +171,17 @@ const useGameState = create<GameState>((set, get) => ({
     
     makeMove: (row, col) => {
         const state = get();
-        console.log(`[GameState] makeMove called:`, { row, col, state: { gameMode: state.gameMode, arenaId: state.arenaId, currentPlayer: state.currentPlayer, playerMark: state.playerMark } });
+        
         
         if (state.gameMode === 'online' && state.arenaId && state.currentPlayer === state.playerMark) {
-            console.log(`[GameState] Emitting make_move to server`);
+            
             socket.emit('make_move', { 
                 arenaId: state.arenaId, 
                 row, 
                 col 
             });
         } else {
-            console.log(`[GameState] Move not sent:`, {
-                isOnline: state.gameMode === 'online',
-                hasArena: !!state.arenaId,
-                isPlayerTurn: state.currentPlayer === state.playerMark
-            });
+            
         }
     },
     
@@ -228,7 +224,7 @@ const useGameState = create<GameState>((set, get) => ({
     },
     
     cleanupGameState: () => {
-        console.log(`[GameState] Cleaning up game state after victory`);
+        
         
         // Clear all game-related state
         set({
@@ -259,12 +255,12 @@ const useGameState = create<GameState>((set, get) => ({
             windowWithTimer.matchmakingTimer = undefined;
         }
         
-        console.log(`[GameState] Game state cleanup completed`);
+        
     },
 
     exitMatch: () => {
         const state = get();
-        console.log(`[GameState] Exiting match, clearing all state`);
+        
         
         // Clear all game state
         set({
@@ -295,7 +291,7 @@ const useGameState = create<GameState>((set, get) => ({
             windowWithTimer.matchmakingTimer = undefined;
         }
         
-        console.log(`[GameState] Match exit cleanup completed`);
+        
     },
 
     saveGameState: () => {
@@ -313,12 +309,12 @@ const useGameState = create<GameState>((set, get) => ({
                 timestamp: Date.now()
             };
             localStorage.setItem('tactoe_game_state', JSON.stringify(gameState));
-            console.log(`[GameState] Saved game state for arena ${state.arenaId}`);
+            
         }
     },
 
     restoreGameState: (data) => {
-        console.log(`[GameState] Restoring game state:`, data);
+        
         set({
             gameMode: 'online',
             arenaId: data.arenaId,
@@ -333,13 +329,13 @@ const useGameState = create<GameState>((set, get) => ({
         
         // Clear backup state
         localStorage.removeItem('tactoe_game_state_backup');
-        console.log(`[GameState] Game state restored for arena ${data.arenaId}`);
+        
     },
 
     clearPersistedState: () => {
         localStorage.removeItem('tactoe_game_state');
         localStorage.removeItem('tactoe_game_state_backup');
-        console.log(`[GameState] Cleared persisted game state`);
+        
     },
 
     calculateWinnerPlacements: (boardState: string[][], winner: string) => {

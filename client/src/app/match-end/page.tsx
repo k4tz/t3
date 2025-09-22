@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import useGameState from '@/store/gameState';
 import useAuthStore from '@/store/useAuthStore';
@@ -15,7 +15,8 @@ interface MatchData {
 export default function MatchEndPage() {
   const router = useRouter();
   const { cleanupGameState } = useGameState();
-  const { user } = useAuthStore();
+  const { user, setAuth, setToLocalStorage } = useAuthStore();
+  const hasAppliedLocalStatUpdateRef = useRef(false);
   
   // Local component state for match data
   const [matchData, setMatchData] = useState<MatchData | null>(null);
@@ -27,14 +28,7 @@ export default function MatchEndPage() {
     // Get match data from game state before cleaning up
     const gameState = useGameState.getState();
     
-    console.log('[MatchEnd] Game state data:', {
-      winner: gameState.winner,
-      opponent: gameState.opponent,
-      playerMark: gameState.playerMark,
-      gameMode: gameState.gameMode,
-      gameStatus: gameState.gameStatus,
-      user: user
-    });
+    
     
     // Only proceed if this is an online game
     if (gameState.gameMode !== 'online') {
@@ -50,10 +44,35 @@ export default function MatchEndPage() {
       gameMode: gameState.gameMode
     };
     
-    console.log('[MatchEnd] Setting match data:', matchInfo);
+    
     
     // Set local state with match data
     setMatchData(matchInfo);
+    
+    // Locally update stored user stats exactly once to reflect result (cumulative wins/losses; net stars in totalStars)
+    if (!hasAppliedLocalStatUpdateRef.current) {
+      hasAppliedLocalStatUpdateRef.current = true;
+      const { user: currentUser } = useAuthStore.getState();
+      if (currentUser && matchInfo.winner) {
+        const isDraw = matchInfo.winner === 'draw';
+        const isWin = !isDraw && matchInfo.winner === currentUser.username;
+        const isLoss = !isDraw && !isWin;
+
+        const currentStars = currentUser.totalStars || 0;
+        const updatedUser = {
+          ...currentUser,
+          // cumulative totals
+          wins: (currentUser.wins || 0) + (isWin ? 1 : 0),
+          losses: (currentUser.losses || 0) + (isLoss ? 1 : 0),
+          draws: (currentUser.draws || 0) + (isDraw ? 1 : 0),
+          totalMatches: (currentUser.totalMatches || 0) + 1,
+          // net stars
+          totalStars: Math.max(0, currentStars + (isWin ? 1 : 0) - (isLoss ? 1 : 0))
+        };
+        setAuth(updatedUser);
+        setToLocalStorage(updatedUser);
+      }
+    }
     
     // Show animation for 3 seconds, then show countdown
     const animationTimer = setTimeout(() => {
@@ -62,31 +81,28 @@ export default function MatchEndPage() {
 
     // Start countdown timer
     const countdownInterval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          setIsExiting(true);
-          // Clean up game state and redirect
-          cleanupGameState();
-          router.push('/select-mode');
-          return 0;
-        }
-        return prev - 1;
-      });
+      setCountdown((prev) => (prev <= 1 ? 0 : prev - 1));
     }, 1000);
 
     return () => {
       clearTimeout(animationTimer);
       clearInterval(countdownInterval);
     };
-  }, [cleanupGameState, router, user]);
+  }, [router, user]);
+
+  // Handle exit when countdown finishes to avoid setState during render of another component
+  useEffect(() => {
+    if (countdown === 0 && !isExiting) {
+      setIsExiting(true);
+      cleanupGameState();
+      router.push('/select-mode');
+    }
+  }, [countdown, isExiting, cleanupGameState, router]);
 
 
   // Determine the winner display
   const getWinnerDisplay = () => {
-    console.log('[MatchEnd] getWinnerDisplay called with:', {
-      winner: matchData?.winner,
-      matchData: matchData
-    });
+    
     
     if (!matchData?.winner || matchData.winner === 'draw') return 'Draw!';
     
@@ -94,18 +110,21 @@ export default function MatchEndPage() {
     return matchData.winner;
   };
 
+  const getOutcomeMessage = () => {
+    if (!matchData?.winner || matchData.winner === 'draw') return 'Draw!';
+    const currentUsername = user?.username;
+    if (currentUsername && matchData.winner === currentUsername) {
+      return 'You win!';
+    }
+    return 'Opponent wins!';
+  };
+
   const getMatchTitle = () => {
     if (matchData?.gameMode === 'online') {
       const currentUsername = user?.username || 'Unknown Player';
       const opponentName = matchData.opponent || 'Unknown Player';
       
-      console.log('[MatchEnd] Match title data:', {
-        currentUsername,
-        opponentName,
-        playerMark: matchData.playerMark,
-        user: user,
-        matchData: matchData
-      });
+      
       
       if (matchData.playerMark === 'X') {
         return `${currentUsername} vs ${opponentName}`;
@@ -127,11 +146,7 @@ export default function MatchEndPage() {
   }
 
   // Debug: Show current state
-  console.log('[MatchEnd] Current state:', {
-    matchData,
-    user,
-    showAnimation
-  });
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
@@ -152,11 +167,9 @@ export default function MatchEndPage() {
                 {matchData.winner && matchData.winner !== 'draw' ? '🏆' : '🤝'}
               </div>
               <div className="text-3xl font-bold text-yellow-400 animate-pulse">
-                {matchData.winner && matchData.winner !== 'draw' ? `${getWinnerDisplay()} Wins!` : 'Draw!'}
+                {getOutcomeMessage()}
               </div>
-              <div className="text-sm text-gray-400 animate-pulse">
-                {matchData.winner && matchData.winner !== 'draw' ? 'Victory!' : 'Well played!'}
-              </div>
+              <div className="text-sm text-gray-400 animate-pulse">Well played!</div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -164,11 +177,9 @@ export default function MatchEndPage() {
                 {matchData.winner && matchData.winner !== 'draw' ? '🏆' : '🤝'}
               </div>
               <div className="text-3xl font-bold text-yellow-400">
-                {matchData.winner && matchData.winner !== 'draw' ? `${getWinnerDisplay()} Wins!` : 'Draw!'}
+                {getOutcomeMessage()}
               </div>
-              <div className="text-sm text-gray-400">
-                {matchData.winner && matchData.winner !== 'draw' ? 'Congratulations!' : 'Well played!'}
-              </div>
+              <div className="text-sm text-gray-400">Well played!</div>
             </div>
           )}
         </div>

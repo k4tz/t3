@@ -56,7 +56,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
         if (userData) {
           const user = JSON.parse(userData);
           get().setAuth(user);
-          console.log('[AuthStore] Synced auth state from storage:', user.username);
+          
         }
       } catch (error) {
         console.error('[AuthStore] Error syncing auth from storage:', error);
@@ -78,7 +78,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
         localStorage.removeItem('tactoe_auth_event');
       }, 100);
       
-      console.log('[AuthStore] Broadcasted auth change:', type, user?.username);
+      
     },
   
     // Actions
@@ -156,7 +156,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
         get().broadcastAuthChange('logout');
 
       } catch (error: any) {
-        console.error('Logout error:', error);
+        
         set({ error: error.message });
       }
     },

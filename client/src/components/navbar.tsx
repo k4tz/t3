@@ -180,128 +180,143 @@ export default function Navbar() {
                 </div>
 
                 {/* Simple Mobile Menu */}
+                {/* Mobile Menu */}
                 {isMobileMenuOpen && (
-                    <div className="md:hidden fixed inset-0 z-50">
-                        {/* Simple backdrop */}
-                        <div 
-                            className="absolute inset-0 bg-black bg-opacity-50"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                        />
+                <div className="md:hidden fixed inset-0 z-50">
+                    {/* Backdrop */}
+                    <div
+                    className="absolute inset-0 bg-black bg-opacity-50"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    />
+
+                    {/* Menu Panel */}
+                    <div className="relative h-full bg-gradient-to-b from-blue-900 to-purple-900 border-l border-gray-700">
+                    <div className="flex flex-col h-full z-50">
                         
-                        {/* Simple menu panel */}
-                        <div className="relative h-full bg-gray-900 border-l border-gray-700">
-                            <div className="flex flex-col h-full z-50">
-                                {/* Simple header */}
-                                <div className="flex justify-between items-center p-4 border-b border-gray-700">
-                                    <div className="flex items-center space-x-2">
-                                        <img 
-                                            src="/logo.svg" 
-                                            alt="TheT3 Logo" 
-                                            width={24} 
-                                            height={24}
-                                            className="rounded"
-                                        />
-                                        <span className="text-white font-semibold">Menu</span>
-                                    </div>
-                                    <button
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="p-2 text-white"
-                                        aria-label="Close menu"
-                                    >
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
+                        {/* Header */}
+                        <div className="flex justify-between items-center p-4 border-b border-gray-700">
+                        <div className="flex items-center space-x-2">
+                            <img
+                            src="/logo.svg"
+                            alt="TheT3 Logo"
+                            width={24}
+                            height={24}
+                            className="rounded"
+                            />
+                            <span className="text-white font-semibold">Menu</span>
+                        </div>
+                        <button
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="p-2 text-white"
+                            aria-label="Close menu"
+                        >
+                            <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                            />
+                            </svg>
+                        </button>
+                        </div>
+
+                        {/* Menu Items (Nav + Auth in one flow) */}
+                        <div className="flex-1 min-h-[100vh] bg-gradient-to-b from-purple-900 to-blue-900">
+                        <div className="space-y-2">
+                            {/* Main nav */}
+                            <Link
+                            href="/"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="block w-full text-white py-3 px-4 border border-gray-600 rounded text-center"
+                            >
+                            Home
+                            </Link>
+                            <Link
+                            href="/select-mode"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="block w-full bg-blue-600 text-white text-center py-3 px-4 rounded"
+                            >
+                            Play Now
+                            </Link>
+                            <Link
+                            href="/leaderboard"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="block w-full text-white py-3 px-4 border border-gray-600 rounded text-center"
+                            >
+                            Leaderboard
+                            </Link>
+                            <Link
+                            href="/learn-more"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="block w-full text-white py-3 px-4 border border-gray-600 rounded text-center"
+                            >
+                            Learn More
+                            </Link>
+
+                            {/* User section */}
+                            {isAuthenticated ? (
+                            <>
+                                <div className="flex items-center space-x-3 py-4 px-2 border-t border-gray-700">
+                                <Image
+                                    src="/avatar_m1.svg"
+                                    alt="User Avatar"
+                                    width={32}
+                                    height={32}
+                                    className="rounded-full"
+                                />
+                                <div>
+                                    <p className="text-white font-medium">
+                                    {user?.username ?? "Guest"}
+                                    </p>
+                                    <p className="text-gray-400 text-sm">Online</p>
                                 </div>
-
-                                {/* Simple navigation links */}
-                                <div className="flex-1 p-4">
-                                    <div className="space-y-2">
-                                        <Link 
-                                            href="/select-mode"
-                                            onClick={() => setIsMobileMenuOpen(false)}
-                                            className="block w-full bg-blue-600 text-white text-center py-3 px-4 rounded"
-                                        >
-                                            Play Now
-                                        </Link>
-                                        <Link 
-                                            href="/leaderboard" 
-                                            className="block w-full text-white py-3 px-4 border border-gray-600 rounded"
-                                            onClick={() => setIsMobileMenuOpen(false)}
-                                        >
-                                            Leaderboard
-                                        </Link>
-                                        <Link 
-                                            href="/learn-more" 
-                                            className="block w-full text-white py-3 px-4 border border-gray-600 rounded"
-                                            onClick={() => setIsMobileMenuOpen(false)}
-                                        >
-                                            Learn More
-                                        </Link>
-                                    </div>
                                 </div>
-
-                                {/* Simple user section */}
-                                {isAuthenticated && (
-                                    <div className="border-t border-gray-700 p-4">
-                                        <div className="mb-4">
-                                            <div className="flex items-center space-x-3">
-                                                <Image 
-                                                    src="/avatar_m1.svg" 
-                                                    alt="User Avatar" 
-                                                    width={32} 
-                                                    height={32}
-                                                    className="rounded-full"
-                                                />
-                                                <div>
-                                                    <p className="text-white font-medium">
-                                                        {user?.username ?? 'Guest'}
-                                                    </p>
-                                                    <p className="text-gray-400 text-sm">Online</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Link 
-                                                href="/profile" 
-                                                onClick={() => setIsMobileMenuOpen(false)}
-                                                className="block w-full text-white py-2 px-4 border border-gray-600 rounded text-center"
-                                            >
-                                                Profile
-                                            </Link>
-                                            <button
-                                                onClick={() => {
-                                                    logout();
-                                                    setIsMobileMenuOpen(false);
-                                                }}
-                                                className="block w-full text-red-400 py-2 px-4 border border-red-600 rounded text-center"
-                                            >
-                                                Logout
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Simple login/signup section */}
-                                {!isAuthenticated && (
-                                    <div className="border-t border-gray-700 p-4">
-                                        <div className="space-y-2">
-                                            <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                                                <div className="w-full text-white py-2 px-4 border border-gray-600 rounded text-center">
-                                                    Login
-                                                </div>
-                                            </Link>
-                                            <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                                                <div className="w-full bg-green-600 text-white py-2 px-4 rounded text-center">
-                                                    Sign Up
-                                                </div>
-                                            </Link>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                                <Link
+                                href="/profile"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block w-full text-white py-2 px-4 border border-gray-600 rounded text-center"
+                                >
+                                Profile
+                                </Link>
+                                <button
+                                onClick={() => {
+                                    logout();
+                                    setIsMobileMenuOpen(false);
+                                }}
+                                className="block w-full text-red-400 py-2 px-4 border border-red-600 rounded text-center"
+                                >
+                                Logout
+                                </button>
+                            </>
+                            ) : (
+                            <>
+                                <Link
+                                href="/login"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block w-full text-white py-2 px-4 border border-gray-600 rounded text-center"
+                                >
+                                Login
+                                </Link>
+                                <Link
+                                href="/register"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block w-full bg-green-600 text-white py-2 px-4 rounded text-center"
+                                >
+                                Sign Up
+                                </Link>
+                            </>
+                            )}
+                        </div>
                         </div>
                     </div>
+                    </div>
+                </div>
                 )}
             </div>
         </nav>

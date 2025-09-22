@@ -40,7 +40,6 @@ export default function LeaderboardPage() {
                 ? (err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Failed to fetch leaderboard'
                 : 'Failed to fetch leaderboard';
             setError(errorMessage);
-            console.error('Error fetching leaderboard:', err);
         } finally {
             setLoading(false);
         }

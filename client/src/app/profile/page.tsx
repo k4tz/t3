@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAuthStore from "@/store/useAuthStore";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,7 +13,7 @@ import Navbar from "@/components/navbar";
 import RankDisplay from "@/components/RankDisplay";
 
 export default function ProfilePage() {
-    const { user, logout } = useAuthStore();
+    const { user, logout, setAuth, setToLocalStorage } = useAuthStore();
     const [isChangingPassword, setIsChangingPassword] = useState(false);
     const [passwordData, setPasswordData] = useState({
         currentPassword: "",
@@ -22,9 +22,26 @@ export default function ProfilePage() {
     });
     const [isLoading, setIsLoading] = useState(false);
 
+    // Refresh stats on page load to ensure latest wins/losses/draws/totalMatches
+    useEffect(() => {
+        let isMounted = true;
+        (async () => {
+            try {
+                const res = await api.get('/me');
+                if (isMounted && res?.data) {
+                    setAuth(res.data);
+                    setToLocalStorage(res.data);
+                }
+            } catch {
+                // silently ignore; RouteGuard handles auth state
+            }
+        })();
+        return () => { isMounted = false; };
+    }, [setAuth, setToLocalStorage]);
+
     const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Password change form submitted with data:", passwordData);
+        
         
         if (passwordData.newPassword !== passwordData.confirmPassword) {
             toast.error("New passwords do not match");
@@ -38,12 +55,12 @@ export default function ProfilePage() {
 
         setIsLoading(true);
         try {
-            console.log("Making API call to change password...");
-            const response = await api.post('/change-password', {
+            
+            await api.post('/change-password', {
                 currentPassword: passwordData.currentPassword,
                 newPassword: passwordData.newPassword
             });
-            console.log("Password change API response:", response.data);
+            
 
             toast.success("Password changed successfully");
 
@@ -101,15 +118,19 @@ export default function ProfilePage() {
                             </div>
                             <div className="flex justify-between items-center py-3 border-b border-white/10">
                                 <span className="text-white font-medium">Rank</span>
-                                <RankDisplay wins={user?.wins || 0} size="sm" />
+                                <RankDisplay wins={user?.totalStars || 0} size="sm" />
                             </div>
                             <div className="flex justify-between items-center py-3 border-b border-white/10">
-                                <span className="text-white font-medium">Wins</span>
+                                <span className="text-white font-medium">Total Wins</span>
                                 <span className="text-gray-300">{user?.wins || 0}</span>
                             </div>
                             <div className="flex justify-between items-center py-3 border-b border-white/10">
-                                <span className="text-white font-medium">Losses</span>
+                                <span className="text-white font-medium">Total Losses</span>
                                 <span className="text-gray-300">{user?.losses || 0}</span>
+                            </div>
+                            <div className="flex justify-between items-center py-3 border-b border-white/10">
+                                <span className="text-white font-medium">Total Stars</span>
+                                <span className="text-gray-300">{user?.totalStars || 0}</span>
                             </div>
                             <div className="flex justify-between items-center py-3 border-b border-white/10">
                                 <span className="text-white font-medium">Draws</span>

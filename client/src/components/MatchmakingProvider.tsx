@@ -6,6 +6,8 @@ import useGameState from '@/store/gameState';
 import Modal from '@/components/ui/modal';
 import MatchmakingUI from '@/components/matchmaking-ui';
 import MatchmakingWidget from '@/components/matchmaking-widget';
+import useAuthStore from '@/store/useAuthStore';
+import api from '@/lib/axios';
 
 interface MatchmakingContextType {
   openMatchmakingModal: () => void;
@@ -31,10 +33,25 @@ export default function MatchmakingProvider({ children }: MatchmakingProviderPro
   const [hasTriggeredMatchFound, setHasTriggeredMatchFound] = useState(false);
   const { matchmakingStatus, arenaId, gameStatus } = useGameState();
   const router = useRouter();
+  const { setAuth, setToLocalStorage } = useAuthStore();
+
+  const refreshUserStats = async () => {
+    try {
+      const res = await api.get('/me');
+      if (res?.data) {
+        setAuth(res.data);
+        setToLocalStorage(res.data);
+      }
+    } catch {
+      // ignore
+    }
+  };
 
   const openMatchmakingModal = () => {
     // Don't clear state when opening modal - let the match found flow handle it
     setIsModalOpen(true);
+    // Ensure user's rank/wins are fresh for RankDisplay in the modal
+    refreshUserStats();
   };
 
   const closeMatchmakingModal = () => {
@@ -62,7 +79,6 @@ export default function MatchmakingProvider({ children }: MatchmakingProviderPro
       const isRestorationScenario = hasExistingMoves;
       
       if (!isRestorationScenario) {
-        console.log(`[MatchmakingProvider] New match found, opening modal`);
         setHasTriggeredMatchFound(true);
         // Show the modal immediately when match is found
         setIsModalOpen(true);
@@ -72,7 +88,7 @@ export default function MatchmakingProvider({ children }: MatchmakingProviderPro
           handleMatchFound();
         }, 2000); // Show "Match Found!" for 2 seconds before starting
       } else {
-        console.log(`[MatchmakingProvider] Match found during restoration, skipping auto-open`);
+        // skip auto-open for restoration
       }
     }
     

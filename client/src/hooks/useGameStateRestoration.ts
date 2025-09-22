@@ -23,12 +23,10 @@ export default function useGameStateRestoration() {
                 const isRecent = Date.now() - gameState.timestamp < 600000;
                 
                 if (isRecent && gameState.gameMode === 'online' && gameState.arenaId) {
-                    console.log(`[GameStateRestoration] Found recent game state for arena ${gameState.arenaId}`);
                     
                     // The server will automatically send game_state_restore if the user was in an active game
                     // We just need to wait for it, or clear the state if no restoration occurs
                     const timeout = setTimeout(() => {
-                        console.log(`[GameStateRestoration] No server restoration received, clearing persisted state`);
                         clearPersistedState();
                     }, 5000); // 5 second timeout
 

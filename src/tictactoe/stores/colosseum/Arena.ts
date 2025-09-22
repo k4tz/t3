@@ -197,14 +197,27 @@ export default class Arena {
                 const loserId = victor.toString() === this.players[0].toString() ? this.players[1] : this.players[0];
                 
                 await User.findByIdAndUpdate(victor, { 
-                    $inc: { wins: 1, totalMatches: 1 } 
+                    $inc: { wins: 1, totalMatches: 1, totalStars: 1 } 
                 });
                 
-                await User.findByIdAndUpdate(loserId, { 
-                    $inc: { losses: 1, totalMatches: 1 } 
-                });
+                // Decrement one star for the loser, but never below 0
+                try {
+                    const loserDoc = await User.findById(loserId).select('totalStars');
+                    const currentStars = Math.max(0, (loserDoc?.totalStars as number ?? 0));
+                    const newStars = Math.max(0, currentStars - 1);
+                    await User.findByIdAndUpdate(loserId, { 
+                        $set: { totalStars: newStars },
+                        $inc: { losses: 1, totalMatches: 1 } 
+                    });
+                } catch (e) {
+                    console.error(`[Arena] Failed to decrement star for loser ${loserId}:`, e);
+                    // Fallback: still increment losses and totalMatches
+                    await User.findByIdAndUpdate(loserId, { 
+                        $inc: { losses: 1, totalMatches: 1 } 
+                    });
+                }
                 
-                console.log(`[Arena] Updated stats: Winner ${victor} +1 win, Loser ${loserId} +1 loss`);
+                console.log(`[Arena] Updated stats: Winner ${victor} +1 win and +1 star, Loser ${loserId} +1 loss and -1 star`);
             } else {
                 // Draw - increment total matches for both players
                 await User.findByIdAndUpdate(this.players[0], { 
