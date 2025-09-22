@@ -2,7 +2,7 @@ import CombatQueue from '../../stores/matchRegistrar/CombatQueue.ts';
 import Colosseum from '../../stores/colosseum/Colosseum.ts';
 import ConnectionStore from '../../stores/connection/ConnectionStore.ts';
 import  MatchmakingService  from './MatchmakingService.ts';
-import  WinLossStrategy  from './strategies/WinLossStrategy.ts';
+import  RankBasedStrategy  from './strategies/RankBasedStrategy.ts';
 import { Socket, Server } from 'socket.io';
 
 let matchmakingService: MatchmakingService | null = null;
@@ -12,7 +12,7 @@ export default function setupMatchmaking(io: Server, socket: Socket) {
     
     // Initialize matchmaking service if not already done
     if (!matchmakingService) {
-        matchmakingService = new MatchmakingService(new WinLossStrategy(), io);
+        matchmakingService = new MatchmakingService(new RankBasedStrategy(), io);
         matchmakingService.start();
     }
 
@@ -23,6 +23,13 @@ export default function setupMatchmaking(io: Server, socket: Socket) {
             CombatQueue.addPlayer({ playerId: socket.userId, stars: 0, wins: 0, losses: 0 });
             const poolAfter = CombatQueue.getPool().length;
             socket.emit("matchmaking_status", "searching");
+            
+            // Send queue size information
+            socket.emit("queue_size_update", { 
+                queueSize: poolAfter,
+                isLowQueue: poolAfter <= 2 
+            });
+            
             console.log(`[Matchmaking] Player ${socket.userId} joined matchmaking pool (pool size: ${poolBefore} -> ${poolAfter})`);
         } else {
             socket.emit("error", "Must be logged in to join matchmaking");
@@ -37,6 +44,13 @@ export default function setupMatchmaking(io: Server, socket: Socket) {
             CombatQueue.removePlayer(socket.userId);
             const poolAfter = CombatQueue.getPool().length;
             socket.emit("matchmaking_status", "cancelled");
+            
+            // Send updated queue size to remaining players
+            io.emit("queue_size_update", { 
+                queueSize: poolAfter,
+                isLowQueue: poolAfter <= 2 
+            });
+            
             console.log(`[Matchmaking] Player ${socket.userId} left matchmaking pool (pool size: ${poolBefore} -> ${poolAfter})`);
         }
     });
@@ -65,7 +79,10 @@ export default function setupMatchmaking(io: Server, socket: Socket) {
             socket.emit("invalid_move", { message: "Invalid move" });
             return;
         }
-        const moveResult = Ledger.applyMove(playerMark, row, col);
+        Ledger.applyMove(playerMark, row, col);
+        
+        // Update activity timestamp
+        arena.updateActivity();
         
         // Broadcast updated state to all in arena
         const winnerUsername = arena.getWinnerUsername();
@@ -159,7 +176,6 @@ export default function setupMatchmaking(io: Server, socket: Socket) {
             for (const arena of Colosseum.getAllArena()) {
                 if (arena.playerBelongsToArena(socket.userId)) {
                     const arenaId = arena.getArenaId();
-                    const players = arena.getPlayers();
                     
                     // Notify other players that this player disconnected
                     socket.to(arenaId).emit("player_disconnected", {
@@ -172,17 +188,12 @@ export default function setupMatchmaking(io: Server, socket: Socket) {
                         const currentArena = Colosseum.getArena(arenaId);
                         if (currentArena && currentArena.playerBelongsToArena(socket.userId)) {
                             // Check if the disconnected player has reconnected
-                            const connectionStore = require("../stores/connection/ConnectionStore.ts").default;
-                            const currentConnection = connectionStore.getConnection(socket.userId);
-                            
-                            if (!currentConnection || !currentConnection.getSocket().connected) {
-                                // Player hasn't reconnected, end the match
-                                currentArena.endMatch('disconnect');
-                                socket.to(arenaId).emit("game_ended", {
-                                    reason: "opponent_disconnected",
-                                    message: "Your opponent failed to reconnect. Game ended."
-                                });
-                            }
+                            // For now, just end the match after timeout
+                            currentArena.endMatch('disconnect');
+                            socket.to(arenaId).emit("game_ended", {
+                                reason: "opponent_disconnected",
+                                message: "Your opponent failed to reconnect. Game ended."
+                            });
                         }
                         // Clean up timeout reference
                         disconnectTimeouts.delete(socket.userId);
@@ -197,6 +208,7 @@ export default function setupMatchmaking(io: Server, socket: Socket) {
     });
 }
 
+
 // Export function to get matchmaking service for cleanup
 export function getMatchmakingService(): MatchmakingService | null {
     return matchmakingService;
@@ -205,7 +217,7 @@ export function getMatchmakingService(): MatchmakingService | null {
 // Export function to cleanup all timeouts
 export function cleanupTimeouts(): void {
     console.log(`[Matchmaking] Cleaning up ${disconnectTimeouts.size} disconnect timeouts`);
-    disconnectTimeouts.forEach((timeout, userId) => {
+    disconnectTimeouts.forEach((timeout) => {
         clearTimeout(timeout);
     });
     disconnectTimeouts.clear();

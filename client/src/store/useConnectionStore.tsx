@@ -89,15 +89,25 @@ const useConnectionStore = create<ConnectionState>((set, get) => ({
             console.error(`[Client] Socket error:`, message);
         };
 
+        const queueSizeUpdate = (data: { queueSize: number; isLowQueue: boolean }) => {
+            console.log(`[Client] Received queue_size_update:`, data);
+            // Import useGameState dynamically to avoid circular dependency
+            import('./gameState').then(({ default: useGameState }) => {
+                useGameState.getState().setQueueSize(data.queueSize, data.isLowQueue);
+            });
+        };
+
         socket.on("total_active_users", activeUsers);
         socket.on("matchmaking_status", matchmakingStatus);
         socket.on("match_found", matchFound);
+        socket.on("queue_size_update", queueSizeUpdate);
         socket.on("error", error);
 
         return () => {
             socket.off("total_active_users", activeUsers);
             socket.off("matchmaking_status", matchmakingStatus);
             socket.off("match_found", matchFound);
+            socket.off("queue_size_update", queueSizeUpdate);
             socket.off("error", error);
         }
     },

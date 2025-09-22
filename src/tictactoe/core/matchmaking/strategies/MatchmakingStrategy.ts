@@ -1,13 +1,9 @@
-export default class MatchmakingStrategy {
-    getPlayerScore(player) {
-        throw new Error('getPlayerScore must be implemented');
-    }
+import Challenger from '../../../stores/matchRegistrar/Challenger.ts';
 
-    isCompatibleMatch(player1Score, player2Score, queueTimeFactor) {
-        throw new Error('isCompatibleMatch must be implemented');
-    }
+export default abstract class MatchmakingStrategy {
+    abstract getPlayerScore(player: Challenger): number;
 
-    getMatchQuality(player1Score, player2Score, queueTimeFactor) {
-        throw new Error('getMatchQuality must be implemented');
-    }
+    abstract isCompatibleMatch(player1Score: number, player2Score: number, queueTimeFactor?: number): boolean;
+
+    abstract getMatchQuality(player1Score: number, player2Score: number, queueTimeFactor?: number): number;
 }

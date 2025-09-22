@@ -52,15 +52,16 @@ export default function Board() {
   const boardState = gameMode === 'online' ? useGameState.getState().boardState : localBoardState;
   const currentWinner = gameMode === 'online' ? winner : localWinner;
   
-  // Use replay board state when replaying, otherwise use normal board state
-  const displayBoardState = isReplaying && replaySteps.length > 0 ? 
+  // Use replay board state when replaying in offline mode, otherwise use normal board state
+  const displayBoardState = isReplaying && replaySteps.length > 0 && gameMode === 'offline' ? 
     replaySteps[Math.min(replayProgress.current / 100 * replaySteps.length, replaySteps.length - 1)] : 
     boardState;
   
   // Use online winner placements if in online mode, local otherwise
+  // For offline mode, don't show winner placements during replay
   const currentWinnerPlacements = gameMode === 'online' ? 
     (onlineWinnerPlacements.length > 0 ? onlineWinnerPlacements : calculateWinnerPlacements(boardState, currentWinner || '')) : 
-    winnerPlacements;
+    (isReplaying ? [] : winnerPlacements);
 
   // Socket event handlers for online mode
   useEffect(() => {
@@ -312,7 +313,7 @@ export default function Board() {
 }
 
   const resetBoard = () => {
-    if(isReplaying){
+    if(isReplaying && gameMode === 'offline'){
       alert("Cannot reset during replay");
       return;
     }
@@ -432,89 +433,32 @@ export default function Board() {
       return;
     }
 
-    // For offline mode, use existing gameSteps
-    if (gameMode === 'offline') {
-      if (gameSteps.length === 0) {
-        alert("No moves to replay");
-        return;
-      }
-      
-      setIsReplaying(true);
-      setReplaySteps(structuredClone(gameSteps));
-      
-      // Store original winner placements
-      const wps = structuredClone(winnerPlacements);
-      setWinnerPlacements([]);
-      
-      // Replay each step
-      for (let i = 0; i < gameSteps.length; i++) {
-        setTimeout(() => {
-          replayProgress.current = 100 / gameSteps.length * (i + 1);
-          if (i === gameSteps.length - 1) {
-            setIsReplaying(false);
-            replayProgress.current = 0;
-            setWinnerPlacements(wps);
-          }
-        }, 1000 + i * 1000);
-      }
+    // Only allow replay in offline mode
+    if (gameMode !== 'offline') {
       return;
     }
 
-    // For online mode, create steps from current board state
-    const currentBoard = boardState;
-    const steps: string[][][] = [];
-    
-    // Create empty board
-    const emptyBoard = [
-      ['', '', ''],
-      ['', '', ''],
-      ['', '', '']
-    ];
-    
-    // Find all moves and sort them
-    const moves: {row: number, col: number, mark: string}[] = [];
-    for (let row = 0; row < 3; row++) {
-      for (let col = 0; col < 3; col++) {
-        if (currentBoard[row][col]) {
-          moves.push({ row, col, mark: currentBoard[row][col] });
-        }
-      }
-    }
-    
-    // Sort moves by alternating X and O (X goes first)
-    const xMoves = moves.filter(m => m.mark === 'X');
-    const oMoves = moves.filter(m => m.mark === 'O');
-    const sortedMoves: {row: number, col: number, mark: string}[] = [];
-    
-    for (let i = 0; i < Math.max(xMoves.length, oMoves.length); i++) {
-      if (xMoves[i]) sortedMoves.push(xMoves[i]);
-      if (oMoves[i]) sortedMoves.push(oMoves[i]);
-    }
-    
-    // Build steps progressively
-    let currentStep = structuredClone(emptyBoard);
-    steps.push(structuredClone(currentStep));
-    
-    sortedMoves.forEach(move => {
-      currentStep[move.row][move.col] = move.mark;
-      steps.push(structuredClone(currentStep));
-    });
-    
-    if (steps.length <= 1) {
+    // For offline mode, use existing gameSteps
+    if (gameSteps.length === 0) {
       alert("No moves to replay");
       return;
     }
     
     setIsReplaying(true);
-    setReplaySteps(steps);
+    setReplaySteps(structuredClone(gameSteps));
+    
+    // Store original winner placements
+    const wps = structuredClone(winnerPlacements);
+    setWinnerPlacements([]);
     
     // Replay each step
-    for (let i = 0; i < steps.length; i++) {
+    for (let i = 0; i < gameSteps.length; i++) {
       setTimeout(() => {
-        replayProgress.current = 100 / steps.length * (i + 1);
-        if (i === steps.length - 1) {
+        replayProgress.current = 100 / gameSteps.length * (i + 1);
+        if (i === gameSteps.length - 1) {
           setIsReplaying(false);
           replayProgress.current = 0;
+          setWinnerPlacements(wps);
         }
       }, 1000 + i * 1000);
     }
@@ -572,12 +516,12 @@ export default function Board() {
       </div>
       <div className="w-fit board relative">
         <h1 className={`text-4xl font-bold absolute top-[-30%] md:top-[-20%] transition-all duration-500 ${
-          isReplaying ? 'text-purple-400 animate-pulse drop-shadow-[0_0_20px_rgba(168,85,247,0.8)]' :
+          isReplaying && gameMode === 'offline' ? 'text-purple-400 animate-pulse drop-shadow-[0_0_20px_rgba(168,85,247,0.8)]' :
           gameMode === 'online' && gameStatus === 'playing' && currentPlayer === playerMark ? 'text-green-400 drop-shadow-[0_0_10px_rgba(34,197,94,0.6)]' :
           gameMode === 'online' && gameStatus === 'playing' && currentPlayer !== playerMark ? 'text-orange-400 drop-shadow-[0_0_10px_rgba(251,146,60,0.6)]' :
           'text-white'
         }`}>
-          {isReplaying ? (
+          {isReplaying && gameMode === 'offline' ? (
             <span className="flex items-center gap-2">
               <span className="text-3xl animate-spin">🔄</span>
               <span>Replaying Game...</span>
@@ -629,8 +573,8 @@ export default function Board() {
                   return <Square 
                     value={cell} 
                     key={colIdx} 
-                    handleClick={() => !isReplaying && placeMarker(rowIdx, colIdx)} 
-                    isWinnerPlacement={!isReplaying && currentWinnerPlacements.includes(3*rowIdx + colIdx)}
+                    handleClick={() => !(isReplaying && gameMode === 'offline') && placeMarker(rowIdx, colIdx)} 
+                    isWinnerPlacement={!(isReplaying && gameMode === 'offline') && currentWinnerPlacements.includes(3*rowIdx + colIdx)}
                   />
               })}
               </div>
@@ -638,7 +582,7 @@ export default function Board() {
           })}
         </div>
         <div className={"w-full absolute bottom-[-30%] md:bottom-[-20%] z-10 flex flex-col gap-3"}>
-          {isReplaying && (
+          {isReplaying && gameMode === 'offline' && (
             <div className="flex flex-col items-center gap-2">
               <progress value={replayProgress.current} max="100" className="w-full h-3"></progress>
               <span className="text-sm text-gray-300">
@@ -650,7 +594,7 @@ export default function Board() {
             {gameMode === 'offline' && (
               <button onClick={resetBoard} className="bg-black text-white p-2 rounded-md reset-btn">Reset</button>
             )}
-            {(currentWinner || (gameMode === 'offline' && gameSteps.length == 9) || (gameMode === 'online' && gameStatus === 'finished')) && !isReplaying && (
+            {(currentWinner || (gameMode === 'offline' && gameSteps.length == 9)) && !isReplaying && gameMode === 'offline' && (
               <button 
                 onClick={replay} 
                 className="bg-black text-white p-2 rounded-md reset-btn flex items-center gap-2"

@@ -3,6 +3,8 @@ import authenticateToken from "../../middleware/authenticateToken.ts";
 import authService from "../../tictactoe/http/authService.ts";
 import asyncHandler from "express-async-handler";
 import HttpError from "../../errors/HttpError.ts";
+import User from "../../db/models/User.ts";
+import { calculateRank } from "../../tictactoe/utils/rank.ts";
 
 const authRouter = express.Router();
 
@@ -109,6 +111,41 @@ authRouter.post("/change-password", authenticateToken, asyncHandler(async (req: 
 
     const result = await authService.changePassword(req.user.id, currentPassword, newPassword);
     res.status(200).json(result);
+}));
+
+authRouter.get("/leaderboard", asyncHandler(async (req: Request, res: Response) => {
+    try {
+        // Fetch top 10 players by wins (which determines rank)
+        const topPlayers = await User.find({})
+            .sort({ wins: -1, losses: 1 }) // Sort by wins descending, then losses ascending
+            .limit(10)
+            .select('username wins losses draws totalMatches')
+            .lean();
+
+        // Calculate rank information for each player
+        const leaderboard = topPlayers.map((player, index) => {
+            const rankInfo = calculateRank(player.wins);
+            return {
+                rank: index + 1,
+                username: player.username,
+                draws: player.draws,
+                totalMatches: player.totalMatches,
+                tier: rankInfo.tier,
+                displayText: rankInfo.displayText,
+                progress: rankInfo.progress,
+                winRate: player.totalMatches > 0 ? Math.round((player.wins / player.totalMatches) * 100) : 0
+            };
+        });
+
+        res.status(200).json({
+            success: true,
+            leaderboard
+        });
+
+    } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+        throw new HttpError('Failed to fetch leaderboard', 500);
+    }
 }));
 
 export default authRouter

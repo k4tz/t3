@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import RouteGuard from "@/components/RouteGuard";
 import Navbar from "@/components/navbar";
+import RankDisplay from "@/components/RankDisplay";
 
 export default function ProfilePage() {
     const { user, logout } = useAuthStore();
@@ -97,6 +98,26 @@ export default function ProfilePage() {
                             <div className="flex justify-between items-center py-3 border-b border-white/10">
                                 <span className="text-white font-medium">Username</span>
                                 <span className="text-gray-300">{user?.username || 'Unknown'}</span>
+                            </div>
+                            <div className="flex justify-between items-center py-3 border-b border-white/10">
+                                <span className="text-white font-medium">Rank</span>
+                                <RankDisplay wins={user?.wins || 0} size="sm" />
+                            </div>
+                            <div className="flex justify-between items-center py-3 border-b border-white/10">
+                                <span className="text-white font-medium">Wins</span>
+                                <span className="text-gray-300">{user?.wins || 0}</span>
+                            </div>
+                            <div className="flex justify-between items-center py-3 border-b border-white/10">
+                                <span className="text-white font-medium">Losses</span>
+                                <span className="text-gray-300">{user?.losses || 0}</span>
+                            </div>
+                            <div className="flex justify-between items-center py-3 border-b border-white/10">
+                                <span className="text-white font-medium">Draws</span>
+                                <span className="text-gray-300">{user?.draws || 0}</span>
+                            </div>
+                            <div className="flex justify-between items-center py-3 border-b border-white/10">
+                                <span className="text-white font-medium">Total Matches</span>
+                                <span className="text-gray-300">{user?.totalMatches || 0}</span>
                             </div>
                             <div className="flex justify-between items-center py-3 border-b border-white/10">
                                 <span className="text-white font-medium">Account Status</span>

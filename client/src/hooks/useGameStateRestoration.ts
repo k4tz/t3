@@ -38,9 +38,11 @@ export default function useGameStateRestoration() {
                         clearTimeout(timeout);
                         restoreGameState(data);
                         
-                        // Navigate to game if not already there
+                        // Navigate to game if not already there (async to avoid setState during render)
                         if (router.pathname !== '/game') {
-                            router.push('/game');
+                            setTimeout(() => {
+                                router.push('/game');
+                            }, 0);
                         }
                     };
 

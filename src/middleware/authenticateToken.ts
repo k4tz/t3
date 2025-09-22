@@ -8,7 +8,7 @@ const authenticateToken = async (req: Express.Request, res: Express.Response, ne
         return;
     }
     try {
-        req.user = await utils.auth.verifyTokenAsync(token, authConfig.access_token_secret);
+        req.user = await utils.auth.verifyTokenAsync(token, authConfig.access_token_secret());
         next();
     } catch (err) {
         res.status(401).json({ error: 'Invalid token.' });

@@ -8,6 +8,8 @@ interface GameState {
     // Matchmaking state
     matchmakingStatus: 'idle' | 'searching' | 'found' | 'cancelled';
     queueTime: number;
+    queueSize: number;
+    isLowQueue: boolean;
     opponent: string | null;
     arenaId: string | null;
     
@@ -19,10 +21,13 @@ interface GameState {
     winner: string | null;
     winnerPlacements: number[];
     
+    
+    
     // Actions
     startMatchmaking: () => void;
     cancelMatchmaking: () => void;
     updateQueueTime: () => void;
+    setQueueSize: (queueSize: number, isLowQueue: boolean) => void;
     setMatchFound: (data: { arenaId: string; opponent: string; opponentId: string; queueTime: number; playerMark: 'X' | 'O' }) => void;
     setMatchmakingStatus: (status: 'idle' | 'searching' | 'found' | 'cancelled') => void;
     makeMove: (row: number, col: number) => void;
@@ -44,6 +49,8 @@ const useGameState = create<GameState>((set, get) => ({
     // Matchmaking state
     matchmakingStatus: 'idle',
     queueTime: 0,
+    queueSize: 0,
+    isLowQueue: false,
     opponent: null,
     arenaId: null,
     
@@ -58,6 +65,8 @@ const useGameState = create<GameState>((set, get) => ({
     gameStatus: 'waiting',
     winner: null,
     winnerPlacements: [],
+    
+    
     
     // Actions
     startMatchmaking: () => {
@@ -154,6 +163,10 @@ const useGameState = create<GameState>((set, get) => ({
     
     setMatchmakingStatus: (status) => {
         set({ matchmakingStatus: status });
+    },
+    
+    setQueueSize: (queueSize, isLowQueue) => {
+        set({ queueSize, isLowQueue });
     },
     
     makeMove: (row, col) => {

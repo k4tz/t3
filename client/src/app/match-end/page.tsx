@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import useGameState from '@/store/gameState';
 import useAuthStore from '@/store/useAuthStore';
-import { Button } from '@/components/ui/button';
 
 interface MatchData {
   winner: string | null;
@@ -21,6 +20,8 @@ export default function MatchEndPage() {
   // Local component state for match data
   const [matchData, setMatchData] = useState<MatchData | null>(null);
   const [showAnimation, setShowAnimation] = useState(true);
+  const [countdown, setCountdown] = useState(10); // 10 second countdown
+  const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
     // Get match data from game state before cleaning up
@@ -31,7 +32,8 @@ export default function MatchEndPage() {
       opponent: gameState.opponent,
       playerMark: gameState.playerMark,
       gameMode: gameState.gameMode,
-      gameStatus: gameState.gameStatus
+      gameStatus: gameState.gameStatus,
+      user: user
     });
     
     // Only proceed if this is an online game
@@ -53,23 +55,39 @@ export default function MatchEndPage() {
     // Set local state with match data
     setMatchData(matchInfo);
     
-    // Clean up global game state after getting the data
-    cleanupGameState();
-    
-    // Show animation for 3 seconds, then allow interaction
-    const timer = setTimeout(() => {
+    // Show animation for 3 seconds, then show countdown
+    const animationTimer = setTimeout(() => {
       setShowAnimation(false);
     }, 3000);
 
-    return () => clearTimeout(timer);
-  }, [cleanupGameState, router]);
+    // Start countdown timer
+    const countdownInterval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          setIsExiting(true);
+          // Clean up game state and redirect
+          cleanupGameState();
+          router.push('/select-mode');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
-  const handleExit = () => {
-    router.push('/select-mode');
-  };
+    return () => {
+      clearTimeout(animationTimer);
+      clearInterval(countdownInterval);
+    };
+  }, [cleanupGameState, router, user]);
+
 
   // Determine the winner display
   const getWinnerDisplay = () => {
+    console.log('[MatchEnd] getWinnerDisplay called with:', {
+      winner: matchData?.winner,
+      matchData: matchData
+    });
+    
     if (!matchData?.winner || matchData.winner === 'draw') return 'Draw!';
     
     // For online games, winner is the username
@@ -85,7 +103,8 @@ export default function MatchEndPage() {
         currentUsername,
         opponentName,
         playerMark: matchData.playerMark,
-        user: user
+        user: user,
+        matchData: matchData
       });
       
       if (matchData.playerMark === 'X') {
@@ -106,6 +125,13 @@ export default function MatchEndPage() {
       </div>
     );
   }
+
+  // Debug: Show current state
+  console.log('[MatchEnd] Current state:', {
+    matchData,
+    user,
+    showAnimation
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
@@ -147,16 +173,41 @@ export default function MatchEndPage() {
           )}
         </div>
 
-        {/* Action Button */}
-        {!showAnimation && (
+        {/* Auto-exit Countdown */}
+        {!showAnimation && !isExiting && (
           <div className="space-y-3">
-            <Button
-              onClick={handleExit}
-              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 p-4 font-bold text-lg transition-all duration-300 transform hover:scale-105"
-            >
-              <span className="mr-2">🚪</span>
-              Return to Menu
-            </Button>
+            <div className="text-center">
+              <div className="text-lg text-gray-300 mb-2">
+                Returning to menu in:
+              </div>
+              <div className="text-4xl font-bold text-blue-400 mb-4 animate-pulse">
+                {countdown}
+              </div>
+              {/* Progress bar */}
+              <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
+                <div 
+                  className="bg-gradient-to-r from-blue-500 to-emerald-500 h-2 rounded-full transition-all duration-1000 ease-linear"
+                  style={{ width: `${((10 - countdown) / 10) * 100}%` }}
+                ></div>
+              </div>
+              <div className="text-sm text-gray-400">
+                Thank you for playing!
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Exiting Message */}
+        {isExiting && (
+          <div className="space-y-3">
+            <div className="text-center">
+              <div className="text-lg text-gray-300 mb-2">
+                Returning to menu...
+              </div>
+              <div className="text-sm text-gray-400">
+                Please wait
+              </div>
+            </div>
           </div>
         )}
       </div>
