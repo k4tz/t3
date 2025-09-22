@@ -18,6 +18,8 @@ export default class Arena {
     private matchStartTime: Date;
     private autoCloseTimer: number;
     private autoCloseTimeout: NodeJS.Timeout | null;
+    private inactivityTimeout: NodeJS.Timeout | null;
+    private lastActivityTime: Date;
     
     constructor({ arenaId, players, spectators = [], playerUsernames, matchStartTime, autoCloseTimer = 15 }: ArenaData) {
         this.arenaId = arenaId;
@@ -28,9 +30,11 @@ export default class Arena {
         this.matchStartTime = matchStartTime || new Date();
         this.autoCloseTimer = autoCloseTimer;
         this.autoCloseTimeout = null;
+        this.inactivityTimeout = null;
+        this.lastActivityTime = new Date();
         
-        // Start the auto-close timer
-        this.startAutoCloseTimer();
+        // Start inactivity monitoring for abandoned games
+        this.startInactivityMonitoring();
     }
 
     getArenaId() {
@@ -109,14 +113,51 @@ export default class Arena {
         }
     }
 
+    startInactivityMonitoring() {
+        // Clear any existing inactivity timeout
+        if (this.inactivityTimeout) {
+            clearTimeout(this.inactivityTimeout);
+        }
+        
+        // Set timer to check for inactivity (30 minutes)
+        this.inactivityTimeout = setTimeout(() => {
+            const timeSinceLastActivity = Date.now() - this.lastActivityTime.getTime();
+            const thirtyMinutes = 30 * 60 * 1000; // 30 minutes in milliseconds
+            
+            if (timeSinceLastActivity >= thirtyMinutes) {
+                console.log(`[Arena] Auto-closing match ${this.arenaId} due to inactivity`);
+                this.endMatch('timeout');
+            } else {
+                // Restart monitoring
+                this.startInactivityMonitoring();
+            }
+        }, 5 * 60 * 1000); // Check every 5 minutes
+        
+        console.log(`[Arena] Started inactivity monitoring for match ${this.arenaId}`);
+    }
+
+    stopInactivityMonitoring() {
+        if (this.inactivityTimeout) {
+            clearTimeout(this.inactivityTimeout);
+            this.inactivityTimeout = null;
+            console.log(`[Arena] Stopped inactivity monitoring for match ${this.arenaId}`);
+        }
+    }
+
+    updateActivity() {
+        this.lastActivityTime = new Date();
+    }
+
     endMatch(reason: 'timeout' | 'surrender' | 'victory' | 'disconnect' = 'victory') {
         console.log(`[Arena] Ending match ${this.arenaId} - Reason: ${reason}`);
         
-        // Stop the auto-close timer
+        // Stop all timers
         this.stopAutoCloseTimer();
+        this.stopInactivityMonitoring();
         
         // Store match data in database
         this.storeMatchData(reason);
+        
         
         // Remove arena from colosseum
         import('./Colosseum.ts').then(module => {
@@ -125,6 +166,7 @@ export default class Arena {
         
         console.log(`[Arena] Match ${this.arenaId} ended and cleaned up`);
     }
+
 
     private async storeMatchData(reason: string) {
         try {
@@ -147,6 +189,46 @@ export default class Arena {
                 // Convert winner mark to player ID
                 const winnerIndex = winner === 'X' ? 0 : 1;
                 victor = this.players[winnerIndex];
+            }
+            
+            // Update user statistics
+            if (victor) {
+                // There's a winner - increment wins for winner, losses for loser
+                const loserId = victor.toString() === this.players[0].toString() ? this.players[1] : this.players[0];
+                
+                await User.findByIdAndUpdate(victor, { 
+                    $inc: { wins: 1, totalMatches: 1, totalStars: 1 } 
+                });
+                
+                // Decrement one star for the loser, but never below 0
+                try {
+                    const loserDoc = await User.findById(loserId).select('totalStars');
+                    const currentStars = Math.max(0, (loserDoc?.totalStars as number ?? 0));
+                    const newStars = Math.max(0, currentStars - 1);
+                    await User.findByIdAndUpdate(loserId, { 
+                        $set: { totalStars: newStars },
+                        $inc: { losses: 1, totalMatches: 1 } 
+                    });
+                } catch (e) {
+                    console.error(`[Arena] Failed to decrement star for loser ${loserId}:`, e);
+                    // Fallback: still increment losses and totalMatches
+                    await User.findByIdAndUpdate(loserId, { 
+                        $inc: { losses: 1, totalMatches: 1 } 
+                    });
+                }
+                
+                console.log(`[Arena] Updated stats: Winner ${victor} +1 win and +1 star, Loser ${loserId} +1 loss and -1 star`);
+            } else {
+                // Draw - increment total matches for both players
+                await User.findByIdAndUpdate(this.players[0], { 
+                    $inc: { draws: 1, totalMatches: 1 } 
+                });
+                
+                await User.findByIdAndUpdate(this.players[1], { 
+                    $inc: { draws: 1, totalMatches: 1 } 
+                });
+                
+                console.log(`[Arena] Updated stats: Draw - both players +1 draw`);
             }
             
             // Calculate duration

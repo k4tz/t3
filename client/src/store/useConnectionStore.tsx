@@ -70,7 +70,7 @@ const useConnectionStore = create<ConnectionState>((set, get) => ({
 
         // Matchmaking event listeners
         const matchmakingStatus = (status: string) => {
-            console.log(`[Client] Received matchmaking_status: ${status}`);
+            
             // Import useGameState dynamically to avoid circular dependency
             import('./gameState').then(({ default: useGameState }) => {
                 useGameState.getState().setMatchmakingStatus(status as any);
@@ -78,7 +78,7 @@ const useConnectionStore = create<ConnectionState>((set, get) => ({
         };
 
         const matchFound = (data: { arenaId: string; opponent: string; opponentId: string; queueTime: number; playerMark: 'X' | 'O' }) => {
-            console.log(`[Client] Received match_found:`, data);
+            
             // Import useGameState dynamically to avoid circular dependency
             import('./gameState').then(({ default: useGameState }) => {
                 useGameState.getState().setMatchFound(data);
@@ -86,18 +86,28 @@ const useConnectionStore = create<ConnectionState>((set, get) => ({
         };
 
         const error = (message: string) => {
-            console.error(`[Client] Socket error:`, message);
+            
+        };
+
+        const queueSizeUpdate = (data: { queueSize: number; isLowQueue: boolean }) => {
+            
+            // Import useGameState dynamically to avoid circular dependency
+            import('./gameState').then(({ default: useGameState }) => {
+                useGameState.getState().setQueueSize(data.queueSize, data.isLowQueue);
+            });
         };
 
         socket.on("total_active_users", activeUsers);
         socket.on("matchmaking_status", matchmakingStatus);
         socket.on("match_found", matchFound);
+        socket.on("queue_size_update", queueSizeUpdate);
         socket.on("error", error);
 
         return () => {
             socket.off("total_active_users", activeUsers);
             socket.off("matchmaking_status", matchmakingStatus);
             socket.off("match_found", matchFound);
+            socket.off("queue_size_update", queueSizeUpdate);
             socket.off("error", error);
         }
     },
@@ -111,7 +121,7 @@ const useConnectionStore = create<ConnectionState>((set, get) => ({
     },
     disconnect: () => {
         if(socket.connected){
-            console.log("disconnecting...")
+            
             socket.disconnect()
         };
     },
@@ -140,7 +150,7 @@ const useConnectionStore = create<ConnectionState>((set, get) => ({
 
     handleConnectionLoss: () => {
         const state = get();
-        console.log(`[ConnectionStore] Connection lost, attempts: ${state.reconnectAttempts}`);
+        
         
         // Save current game state to localStorage for recovery
         const gameState = localStorage.getItem('tactoe_game_state');
@@ -154,7 +164,7 @@ const useConnectionStore = create<ConnectionState>((set, get) => ({
             setTimeout(() => {
                 const currentState = get();
                 if (currentState.connectionLost && !currentState.isConnected) {
-                    console.log(`[ConnectionStore] Attempting reconnection ${currentState.reconnectAttempts + 1}/${currentState.maxReconnectAttempts}`);
+                    
                     set({ reconnectAttempts: currentState.reconnectAttempts + 1 });
                     socket.connect();
                 }
@@ -163,7 +173,7 @@ const useConnectionStore = create<ConnectionState>((set, get) => ({
     },
 
     handleReconnection: () => {
-        console.log(`[ConnectionStore] Reconnected successfully`);
+        
         
         // Restore authentication
         const userId = localStorage.getItem("tactoe_user");
@@ -177,11 +187,11 @@ const useConnectionStore = create<ConnectionState>((set, get) => ({
             try {
                 const gameState = JSON.parse(backupState);
                 if (gameState.arenaId && gameState.gameMode === 'online') {
-                    console.log(`[ConnectionStore] Requesting game state restoration for arena ${gameState.arenaId}`);
+                    
                     // The server will automatically send game_state_restore if user was in an active game
                 }
             } catch (error) {
-                console.error(`[ConnectionStore] Failed to parse backup game state:`, error);
+                
             }
         }
     },

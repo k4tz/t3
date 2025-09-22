@@ -46,7 +46,7 @@ const login = async ({username, password}: AuthData): Promise<AuthTokens> => {
 const refreshToken = async (refreshToken: string) => {
     
     try {
-        const verified = await utils.auth.verifyTokenAsync(refreshToken, authConfig.refresh_token_secret);
+        const verified = await utils.auth.verifyTokenAsync(refreshToken, authConfig.refresh_token_secret());
         const tokens = await utils.auth.generateAuthTokens(verified.id, verified.username);
 
         return tokens;

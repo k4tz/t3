@@ -1,19 +1,19 @@
 import CombatQueue from '../../stores/matchRegistrar/CombatQueue.ts';
 import Colosseum from '../../stores/colosseum/Colosseum.ts';
 import Arena from '../../stores/colosseum/Arena.ts';
-import WinLossStrategy from './strategies/WinLossStrategy.ts';
+import RankBasedStrategy from './strategies/RankBasedStrategy.ts';
 import ConnectionStore from '../../stores/connection/ConnectionStore.ts';
 import appConfig from '../../../config/app.ts';
 import { Server } from 'socket.io';
 
 export default class MatchmakingService {
-    #strategy: WinLossStrategy;
+    #strategy: RankBasedStrategy;
     #isRunning: boolean;
     #matchmakingInterval: number;
     #intervalId: NodeJS.Timeout | null;
     #io: Server | undefined; // Socket.IO Server instance
     
-    constructor(strategy: WinLossStrategy, io?: Server) {
+    constructor(strategy: RankBasedStrategy, io?: Server) {
         this.#strategy = strategy;
         this.#isRunning = false;
         this.#matchmakingInterval = 5000;
@@ -121,6 +121,15 @@ export default class MatchmakingService {
         // Remove players from matchmaking pool
         CombatQueue.removePlayer(player1.getPlayerId());
         CombatQueue.removePlayer(player2.getPlayerId());
+        
+        // Send updated queue size to all remaining players
+        const remainingQueueSize = CombatQueue.getPool().length;
+        if (this.#io) {
+            this.#io.emit("queue_size_update", { 
+                queueSize: remainingQueueSize,
+                isLowQueue: remainingQueueSize <= 2 
+            });
+        }
 
         // Create a new game arena
         const player1Id = player1.getPlayerId();
@@ -169,6 +178,7 @@ export default class MatchmakingService {
             autoCloseTimer: appConfig.matchAutoCloseTimer
         };
         const arena = new Arena(arenaData);
+        
         Colosseum.createArena(arena);
 
         // Notify both players with their assigned marks
@@ -217,4 +227,5 @@ export default class MatchmakingService {
         }
 
     }
+
 }

@@ -19,6 +19,8 @@ interface AuthState {
     resetError: (key: string, resetAll?: boolean) => void;
     setToLocalStorage: (user: BaseUser) => void;
     removeFromLocalStorage: () => void;
+    syncAuthFromStorage: () => void;
+    broadcastAuthChange: (type: 'login' | 'logout', user?: BaseUser) => void;
 }
 
 const useAuthStore = create<AuthState>((set, get) => ({
@@ -39,10 +41,44 @@ const useAuthStore = create<AuthState>((set, get) => ({
 
     setToLocalStorage: (user: BaseUser) => {
       localStorage.setItem('tactoe_user', user.id);
+      // Store full user data for cross-tab sync
+      localStorage.setItem('tactoe_user_data', JSON.stringify(user));
     },
 
     removeFromLocalStorage: () => {
         localStorage.removeItem('tactoe_user');
+        localStorage.removeItem('tactoe_user_data');
+    },
+
+    syncAuthFromStorage: () => {
+      try {
+        const userData = localStorage.getItem('tactoe_user_data');
+        if (userData) {
+          const user = JSON.parse(userData);
+          get().setAuth(user);
+          
+        }
+      } catch (error) {
+        console.error('[AuthStore] Error syncing auth from storage:', error);
+      }
+    },
+
+    broadcastAuthChange: (type: 'login' | 'logout', user?: BaseUser) => {
+      const eventData = {
+        type,
+        user,
+        timestamp: Date.now()
+      };
+      
+      // Store the auth change event in localStorage
+      localStorage.setItem('tactoe_auth_event', JSON.stringify(eventData));
+      
+      // Remove the event after a short delay to prevent it from being processed again
+      setTimeout(() => {
+        localStorage.removeItem('tactoe_auth_event');
+      }, 100);
+      
+      
     },
   
     // Actions
@@ -56,7 +92,8 @@ const useAuthStore = create<AuthState>((set, get) => ({
         useConnectionStore.getState().upgradeToPresenceChannel();
         return res.data;
       } catch (error: any) {
-        // Even if it fails, we mark as initialized
+        // Session expired or invalid - clear auth state
+        get().removeFromLocalStorage();
         set({ 
           user: null, 
           isAuthenticated: false, 
@@ -64,6 +101,12 @@ const useAuthStore = create<AuthState>((set, get) => ({
           error: error.message,
           initialized: true
         });
+        
+        // Broadcast logout to other tabs if session expired
+        if (error.response?.status === 401) {
+          get().broadcastAuthChange('logout');
+        }
+        
         return null;
       }
     },
@@ -78,6 +121,10 @@ const useAuthStore = create<AuthState>((set, get) => ({
         get().setAuth(userRes.data);
         get().setToLocalStorage(userRes.data);
         useConnectionStore.getState().upgradeToPresenceChannel();
+        
+        // Broadcast login to other tabs
+        get().broadcastAuthChange('login', userRes.data);
+        
         return userRes.data;
       } catch (error: any) {
         set({ 
@@ -105,8 +152,11 @@ const useAuthStore = create<AuthState>((set, get) => ({
             error: null
           });
 
+        // Broadcast logout to other tabs
+        get().broadcastAuthChange('logout');
+
       } catch (error: any) {
-        console.error('Logout error:', error);
+        
         set({ error: error.message });
       }
     },
@@ -120,6 +170,11 @@ const useAuthStore = create<AuthState>((set, get) => ({
         const userRes = await api.get('/me');
         
         get().setAuth(userRes.data);
+        get().setToLocalStorage(userRes.data);
+        useConnectionStore.getState().upgradeToPresenceChannel();
+        
+        // Broadcast login to other tabs after successful registration
+        get().broadcastAuthChange('login', userRes.data);
         
         return userRes.data;
       } catch (error: any) {

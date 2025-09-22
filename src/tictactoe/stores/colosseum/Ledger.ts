@@ -82,6 +82,7 @@ export default class Ledger {
                 return v;
             }
         }
+        // Check for draw only if board is full (currentStep === 0) and no winner found
         if (this.currentStep === 0 && !this.winner) {
             this.winner = 'draw';
         }

@@ -7,6 +7,31 @@
   /* color: white; */
 }
 
+/* Custom scrollbar styling to match purple gradient theme */
+/* WebKit-based browsers */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: linear-gradient(180deg, rgba(30,27,75,0.6) 0%, rgba(76,29,149,0.6) 100%);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #7c3aed, #a78bfa);
+  border-radius: 8px;
+  border: 2px solid rgba(0,0,0,0.15);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #6d28d9, #8b5cf6);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #8b5cf6 rgba(76,29,149,0.4);
+}
+
 /* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

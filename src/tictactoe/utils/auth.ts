@@ -34,8 +34,8 @@ const generateAuthTokens = async (id: string, username: string): Promise<AuthTok
     const user = { id, username };
 
     const [accessToken, refreshToken] = await Promise.all([
-        jwtSignAsync(user, authConfig.access_token_secret, { expiresIn: "1h"}),
-        jwtSignAsync(user, authConfig.refresh_token_secret, { expiresIn: "1d"})
+        jwtSignAsync(user, authConfig.access_token_secret(), { expiresIn: authConfig.access_token_expires_in()}),
+        jwtSignAsync(user, authConfig.refresh_token_secret(), { expiresIn: authConfig.refresh_token_expires_in()})
     ]);
     
     return [accessToken, refreshToken];
