@@ -66,18 +66,23 @@ This will append `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET` values to `.en
    cd client && npm install
    ```
 3. Set up your environment variables
-   - Optionally generate JWT secrets via:
-     ```bash
-     node gt.js
-     ```
-4. Start the development servers:
+   - Backend: create `.env` (see variables above). Optionally generate JWT secrets via `node gt.js`.
+   - Frontend (required): create `client/.env.local` with `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SOCKET_URL`, `NEXT_PUBLIC_APP_NAME`, `NEXT_PUBLIC_APP_URL`.
+4. Start development (backend + frontend together):
    ```bash
-   # Start backend server
    npm run dev
-   
-   # Start frontend server (in another terminal)
-   cd client && npm run dev
    ```
+   - This runs the backend with `nodemon` and the frontend with `next dev` concurrently.
+
+### Individual servers (optional)
+If you prefer running them separately:
+```bash
+# Backend only (nodemon)
+npm run server
+
+# Frontend only (from client/)
+cd client && npm run dev
+```
 
 ## Game Features
 
@@ -126,21 +131,28 @@ This will append `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET` values to `.en
 
 ### Users
 - `_id`: ObjectId
-- `username`: String (unique)
-- `email`: String (unique)
-- `password`: String (hashed)
+- `username`: String (unique, required)
+- `password`: String (hashed, required)
+- `totalMatches`: Number (default: 0)
+- `wins`: Number (default: 0)
+- `losses`: Number (default: 0)
+- `draws`: Number (default: 0)
+- `totalStars`: Number (default: 0)
 
 ### Matches
 - `_id`: ObjectId
-- `playerOne`: ObjectId (ref: User)
-- `playerTwo`: ObjectId (ref: User)
+- `playerOne`: ObjectId (ref: User, required)
+- `playerTwo`: ObjectId (ref: User, required)
 - `victor`: ObjectId (ref: User, optional)
 - `duration`: Number (milliseconds)
-- `startedAt`: Date
+- `startedAt`: Date (default: now)
 - `endedAt`: Date
-- `gameSteps`: Array of board states
-- `finalBoardState`: Final board configuration
-- `endReason`: String (victory, surrender, timeout, disconnect)
+- `gameSteps`: 3D array of strings (board states per move)
+- `finalBoardState`: 2D array of strings (final board)
+- `endReason`: String (one of: timeout | surrender | victory | disconnect; default: victory)
+
+Indexes:
+- Matches: `playerOne`, `playerTwo`, `victor`
 
 ## Development
 
@@ -158,6 +170,27 @@ This will append `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET` values to `.en
 │   ├── routes/            # API routes
 │   └── tictactoe/         # Game logic
 └── dist/                  # Compiled JavaScript
+```
+
+### Scripts
+- `npm run dev` - Run backend (nodemon) and frontend (next dev) concurrently
+- `npm run server` - Start backend development server (nodemon)
+- `npm run build` - Build backend for production (tsc)
+- `npm run start` - Start production backend server (`node dist/index.js`)
+- `cd client && npm run dev` - Start frontend development server
+- `cd client && npm run build` - Build frontend for production
+
+### Default Ports
+- Backend API/WebSocket: `http://localhost:5000`
+- Frontend: `http://localhost:3000`
+
+### Client Environment (required)
+Create `client/.env.local` for client-side config (used by Next.js). These are required for the client to talk to the server and render app metadata:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/v1
+NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
+NEXT_PUBLIC_APP_NAME=T3Game
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 ## UI Preview
@@ -189,13 +222,6 @@ This will append `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET` values to `.en
 <p>
   <img src="UI/Leaderboard.png" alt="Leaderboard" width="800" />
 </p>
-
-### Scripts
-- `npm run dev` - Start backend development server
-- `npm run build` - Build backend for production
-- `npm run start` - Start production backend server
-- `cd client && npm run dev` - Start frontend development server
-- `cd client && npm run build` - Build frontend for production
 
 ## Contributing
 
