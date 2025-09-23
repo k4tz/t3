@@ -149,27 +149,14 @@ const useConnectionStore = create<ConnectionState>((set, get) => ({
     },
 
     handleConnectionLoss: () => {
-        const state = get();
-        
-        
         // Save current game state to localStorage for recovery
         const gameState = localStorage.getItem('tactoe_game_state');
         if (gameState) {
             localStorage.setItem('tactoe_game_state_backup', gameState);
         }
         
-        // Attempt automatic reconnection with exponential backoff
-        if (state.reconnectAttempts < state.maxReconnectAttempts) {
-            const delay = Math.min(1000 * Math.pow(2, state.reconnectAttempts), 10000);
-            setTimeout(() => {
-                const currentState = get();
-                if (currentState.connectionLost && !currentState.isConnected) {
-                    
-                    set({ reconnectAttempts: currentState.reconnectAttempts + 1 });
-                    socket.connect();
-                }
-            }, delay);
-        }
+        // Manual reconnect: do not auto-connect or backoff here
+        // UI will show reconnect button handled in ConnectManager
     },
 
     handleReconnection: () => {

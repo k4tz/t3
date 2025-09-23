@@ -50,8 +50,8 @@ export function SignupForm({
                 await register(authData);
                 toast.success('Registered successfully');
                 router.push('/');
-            }catch(signupError: any){
-                //
+            }catch{
+                // ignore
             }finally{
                 toast.dismiss(toastId);
             }
@@ -114,7 +114,7 @@ export function SignupForm({
                     </Button>
                 </div>
                 <div className="mt-4 text-center text-sm text-gray-300">
-                    <Link href="/login" className="text-purple-400 hover:text-purple-300 underline underline-offset-4 transition-colors duration-300">
+                    <Link href="/login?from=register" className="text-purple-400 hover:text-purple-300 underline underline-offset-4 transition-colors duration-300">
                         Back to login
                     </Link>
                 </div>
