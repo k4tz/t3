@@ -1,8 +1,8 @@
-<p>
-  <img src="UI/Intro.png" alt="Intro" width="800" />
-</p>
-
 # TicTacToe Multiplayer Game
+
+<p>
+  <img src="UI/Intro.png" alt="Intro" width="900" />
+</p>
 
 A full-stack TypeScript application featuring real-time multiplayer TicTacToe with matchmaking, game state persistence, and match history.
 
@@ -161,8 +161,6 @@ This will append `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET` values to `.en
 ```
 
 ## UI Preview
-
-Below are selected UI screens. Paths are relative to the repository root.
 
 <p>
   <img src="UI/Intro.png" alt="Intro" width="800" />
