@@ -1,4 +1,4 @@
-# TicTacToe Multiplayer Game
+# TicTacGo - A Multiplayer Game
 
 <p>
   <img src="UI/Intro.png" alt="Intro" width="900" />
