@@ -13,9 +13,9 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, { 
     cors: { 
-        origin: corsConfig.origin,
-        methods: corsConfig.methods,
-        credentials: corsConfig.credentials
+        origin: corsConfig().origin,
+        methods: corsConfig().methods,
+        credentials: corsConfig().credentials
     } 
 });
 

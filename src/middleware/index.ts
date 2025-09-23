@@ -11,7 +11,7 @@ import verifyCsrfToken from "./verifyCSRFToken.ts";
  * @description Setup global middlware for app - applies to all routes
  */
 export default function setupMiddleware(app: express.Express) {
-    app.use(cors(corsConfig));
+    app.use(cors(corsConfig()));
     app.use(cookieParser());
     app.use(express.json());
     app.use(generateCsrfToken);
