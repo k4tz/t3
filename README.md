@@ -1,3 +1,7 @@
+<p>
+  <img src="UI/Intro.png" alt="Intro" width="800" />
+</p>
+
 # TicTacToe Multiplayer Game
 
 A full-stack TypeScript application featuring real-time multiplayer TicTacToe with matchmaking, game state persistence, and match history.
@@ -43,6 +47,16 @@ ACCESS_TOKEN_SECRET=your_jwt_secret_here
 REFRESH_TOKEN_SECRET=your_jwt_secret_here
 ```
 
+### Generate JWT secrets using utility script
+
+You can auto-generate and append JWT secrets to your `.env` using the provided script at the project root:
+
+```bash
+node gt.js
+```
+
+This will append `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET` values to `.env` (creating the file if missing). If you run it multiple times, it will append additional lines; clean up duplicates if needed.
+
 ## Installation
 
 1. Clone the repository
@@ -52,6 +66,10 @@ REFRESH_TOKEN_SECRET=your_jwt_secret_here
    cd client && npm install
    ```
 3. Set up your environment variables
+   - Optionally generate JWT secrets via:
+     ```bash
+     node gt.js
+     ```
 4. Start the development servers:
    ```bash
    # Start backend server
@@ -141,6 +159,38 @@ REFRESH_TOKEN_SECRET=your_jwt_secret_here
 │   └── tictactoe/         # Game logic
 └── dist/                  # Compiled JavaScript
 ```
+
+## UI Preview
+
+Below are selected UI screens. Paths are relative to the repository root.
+
+<p>
+  <img src="UI/Intro.png" alt="Intro" width="800" />
+</p>
+
+<p>
+  <img src="UI/Game%20%26%20Themes.png" alt="Game and Themes" width="800" />
+</p>
+
+<p>
+  <img src="UI/User%20Profile%20and%20Stats%20tracking.png" alt="User Profile and Stats tracking" width="800" />
+</p>
+
+<p>
+  <img src="UI/Matchmaking%20UI.png" alt="Matchmaking UI" width="800" />
+</p>
+
+<p>
+  <img src="UI/Select%20game%20mode.png" alt="Select game mode" width="800" />
+</p>
+
+<p>
+  <img src="UI/Arena%20Themes.png" alt="Arena Themes" width="800" />
+</p>
+
+<p>
+  <img src="UI/Leaderboard.png" alt="Leaderboard" width="800" />
+</p>
 
 ### Scripts
 - `npm run dev` - Start backend development server
