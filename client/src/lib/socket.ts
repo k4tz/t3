@@ -6,9 +6,9 @@ const URL = SOCKET_URL;
 
 const socket = io(URL, {
     autoConnect: false,
-    reconnection: true,
-    reconnectionDelay: 1000,
-    reconnectionAttempts: 5,
+    // Disable automatic reconnection to avoid multi-tab loops
+    // will enable once connection sharing is implemented
+    reconnection: false,
     timeout: 20000,
     forceNew: true
 });

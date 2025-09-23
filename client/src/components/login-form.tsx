@@ -49,9 +49,14 @@ export function LoginForm({
             try{
                 await login(authData);
                 toast.success('Logged in successfully');
-                router.back();
-            }catch(loginError: any){
-                //
+                const isFromRegister = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('from') === 'register';
+                if (isFromRegister) {
+                    router.push('/');
+                } else {
+                    router.back();
+                }
+            }catch{
+                // ignore
             }finally{
                 toast.dismiss(toastId);
             }
