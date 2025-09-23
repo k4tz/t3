@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import useAuthStore from "@/store/useAuthStore";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { APP_NAME } from '@/lib/env';
 
 export default function Navbar() {
     const { logout, isAuthenticated, user } = useAuthStore();
@@ -41,7 +42,7 @@ export default function Navbar() {
                             className="rounded-lg"
                         />
                         <span className="text-xl font-bold text-white block">
-                            TheT3
+                            {APP_NAME}
                         </span>
                     </Link>
 

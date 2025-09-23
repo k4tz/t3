@@ -1,7 +1,8 @@
 import { io } from 'socket.io-client';
+import { SOCKET_URL } from '@/lib/env';
 
 // "undefined" means the URL will be computed from the `window.location` object
-const URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000';
+const URL = SOCKET_URL;
 
 const socket = io(URL, {
     autoConnect: false,

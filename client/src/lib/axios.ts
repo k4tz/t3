@@ -1,5 +1,6 @@
 import axios from "axios";
 import useAuthStore from '@/store/useAuthStore';
+import { API_URL } from '@/lib/env';
 
 function getCookieValue(name: string) {
     const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
@@ -7,7 +8,7 @@ function getCookieValue(name: string) {
 }
 
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1",
+    baseURL: API_URL,
     withCredentials: true, 
 });
 

@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import api from "@/lib/axios";
+import { useState } from 'react';
 import RouteGuard from "@/components/RouteGuard";
 import Link from 'next/link';
-import { socket } from "@/lib/socket";
 import Navbar from "@/components/navbar"
-import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { APP_NAME } from '@/lib/env';
+
 
 export default function Home() {
     const [activeTheme, setActiveTheme] = useState('Imperial');
@@ -28,7 +27,7 @@ export default function Home() {
                 <div className="container mx-auto px-8 py-20">
                     <div className="text-center mb-16">
                         <h1 className="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            TheT3
+                            {APP_NAME}
                         </h1>
                         <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto">
                             Experience the ultimate multiplayer tic-tac-toe battle! Challenge friends, 
