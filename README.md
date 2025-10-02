@@ -4,7 +4,7 @@
   <img src="UI/Intro.png" alt="Intro" width="900" />
 </p>
 
-A full-stack TypeScript application featuring real-time multiplayer TicTacToe with matchmaking, game state persistence, and match history.
+Real-time multiplayer TicTacToe with competitive features including automated matchmaking, skill-based rankings, and leaderboard standings.
 
 ## Features
 
